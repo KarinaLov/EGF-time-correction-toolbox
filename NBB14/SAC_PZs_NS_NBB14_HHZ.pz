@@ -1,0 +1,37 @@
+* **********************************
+* NETWORK   (KNETWK): 2D
+* STATION    (KSTNM): NBB14
+* LOCATION   (KHOLE): 
+* CHANNEL   (KCMPNM): HHZ
+* CREATED           : 2018-11-28T10:02:54
+* START             : 2015-05-05T00:04:24
+* END               : 2015-05-05T24:10:04
+* DESCRIPTION       : Station Nordeng, Norway
+* LATITUDE    (deg) : 66.303000 
+* LONGITUDE   (deg) : 13.558600  
+* ELEVATION     (m) : 35.0   
+* DEPTH         (m) : 0.0  
+* DIP         (deg) : 0.0  
+* AZIMUTH     (deg) : 0.0  
+* SAMPLE RATE  (Hz) : 100.0
+* INPUT UNIT        : M
+* OUTPUT UNIT       : COUNTS
+* INSTTYPE          : GFZ:2D2013:STS-2.5/g=1500
+* INSTGAIN          : 1.500000e+03 (M/S)
+* COMMENT           : N/A
+* SENSITIVITY       : 1.500000e+09 (M/S)
+* A0                : 6.007700e+07
+* Site Name         : Station Nordeng, Norway
+* Owner             : Neonor2, UIB, NORSAR
+* **********************************
+ZEROS	3
+	+0.000000e+00	+0.000000e+00
+	+0.000000e+00	+0.000000e+00
+	+0.000000e+00	+0.000000e+00
+POLES	5
+	-3.700400e-02	+3.701600e-02
+	-3.700400e-02	-3.701600e-02
+	-2.513300e+02	+0.000000e+00
+	-1.310400e+02	-4.672900e+02
+	-1.310400e+02	+4.672900e+02
+CONSTANT	+9.011550e+16
