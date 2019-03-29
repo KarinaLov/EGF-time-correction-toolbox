@@ -1,0 +1,37 @@
+* **********************************
+* NETWORK   (KNETWK): 2D
+* STATION    (KSTNM): N2TV
+* LOCATION   (KHOLE): 
+* CHANNEL   (KCMPNM): HHZ
+* CREATED           : 2018-11-21T13:34:38
+* START             : 2015-01-01T00:04:49
+* END               : 2015-01-01T24:10:17
+* DESCRIPTION       : Station T
+* LATITUDE    (deg) : 67.567500 
+* LONGITUDE   (deg) : 15.125200  
+* ELEVATION     (m) : 5.0    
+* DEPTH         (m) : 0.0  
+* DIP         (deg) : 0.0  
+* AZIMUTH     (deg) : 0.0  
+* SAMPLE RATE  (Hz) : 100.0
+* INPUT UNIT        : M
+* OUTPUT UNIT       : COUNTS
+* INSTTYPE          : GFZ:2D2013:STS-2.5/g=1500
+* INSTGAIN          : 1.500000e+03 (M/S)
+* COMMENT           : N/A
+* SENSITIVITY       : 1.500000e+09 (M/S)
+* A0                : 6.007700e+07
+* Site Name         : Station T
+* Owner             : Neonor2, UIB, NORSAR
+* **********************************
+ZEROS	3
+	+0.000000e+00	+0.000000e+00
+	+0.000000e+00	+0.000000e+00
+	+0.000000e+00	+0.000000e+00
+POLES	5
+	-3.700400e-02	+3.701600e-02
+	-3.700400e-02	-3.701600e-02
+	-2.513300e+02	+0.000000e+00
+	-1.310400e+02	-4.672900e+02
+	-1.310400e+02	+4.672900e+02
+CONSTANT	+9.011550e+16
