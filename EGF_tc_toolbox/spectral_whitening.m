@@ -1,10 +1,9 @@
-function sw=spectral_whitening(signal,Fq) 
+function sw=spectral_whitening(signal) 
 %  Spectral whitening: flattens the spectrum by dividing the foruier 
 %                         transform of the signal by the smoothed amplitude
 %                         spectrum. 
 %  Input: 
 %         data = input signal
-%         Fq = sampling frequency
 %
 %  Output: 
 %       sw = spectrally whitened signal

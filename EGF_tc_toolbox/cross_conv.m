@@ -7,6 +7,7 @@ function [cross,varargout] = cross_conv(seq1,seq2,Fq,varargin)
   %     varargin:
   %          wl = window length to cross correlate over in hours 
   %          swl = number of hour to stack the cross correlations over 
+  %          perco = percent overlap
   %
   % Output:
   %     cross = the cross correlation of seg1 and seg 2
@@ -27,7 +28,14 @@ function [cross,varargout] = cross_conv(seq1,seq2,Fq,varargin)
     % using flip and conv  
     s1 = flip(seq1);
     s2 = seq2;
-    cross = conv(s1,s2);
+        
+    if (sum(s1)==0 & mean(s1)==0) | (sum(s2)==0 & mean(s2)==0)
+        % One of the segments are completly zero and the cross
+        % correlation is not necessary  
+        warning('One of the segments are completly zero, the CC is set to zero')
+    else
+        cross = conv(s1,s2);
+    end
     
     % Make the lag vector start from negative and have length (m+n)-1:
     k = max(m,n);
@@ -39,29 +47,43 @@ function [cross,varargout] = cross_conv(seq1,seq2,Fq,varargin)
   else
     wl = varargin{1};
     swl = varargin{2};
+    perco = varargin{3};
     % The input segments are cut to shorter time windows before cross 
     % correlation to save time
-    
-    nwl = wl*60*60*Fq; % Window length in samples 
+        
+    po = perco/100;
+    nwl = wl*60*60*Fq; % Window length in samples
+    nuwl = (swl/wl)*round(1/po); % Number of windows per day 
+    if po<1
+        nuwl = nuwl-1;
+    end
     
     % Preallocate for speed:
-    cross_seg = zeros(swl/wl,2*nwl-1); 
+    cross_seg = zeros(nuwl,2*nwl-1); 
     cross = zeros(24/swl,2*nwl-1);
     
     i=0;
+    ii=1;
     for l = 1:24/swl
-    for j = 1:swl/wl
-        i = i+1;
-        s1 = seq1(1,((nwl*(i-1))+1):(nwl*i));
-        s2 = seq2(1,((nwl*(i-1))+1):(nwl*i));
+    for j = 1:nuwl
+        s1 = seq1(1,((nwl*i)+1):(nwl*ii));
+        s2 = seq2(1,((nwl*i)+1):(nwl*ii));
 
-        sf1 = flip(s1);
-        cross_seg(j,:) = conv(sf1,s2);
+        if (sum(s1)==0 & mean(s1)==0) || (sum(s2)==0 & mean(s2)==0)
+            % One of the segments are completly zero and the cross
+            % correlation is not necessary
+        else
+            sf1 = flip(s1);
+            cross_seg(j,:) = conv(sf1,s2);     
+        end
+        
+        i = i+po;
+        ii = ii+po;
     end
         cross_seg_m = cross_seg(2:end-1,:);
         cross(l,:) = sum(cross_seg_m);
           % If the mean of the cross correlation is NaN the array is set to zero to avoid afffecting the final stack:
-          if isnan(mean(cross(l,:))) == 1
+          if isnan(mean(cross(l,:)))
               cross(l,:) = zeros(1,length(cross)); 
               faulty = 1;
           end
@@ -84,6 +106,5 @@ function [cross,varargout] = cross_conv(seq1,seq2,Fq,varargin)
   elseif nargout == 3
       varargout{1} = lag;
       varargout{2} = faulty;
-  end
-  
+  end  
 end

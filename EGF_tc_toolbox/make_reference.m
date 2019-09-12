@@ -19,7 +19,7 @@ function [ref,numref] = make_reference(daily,varargin)
 % Written by Karina Løviknes
 %
 
-num_days = length(daily(:,1)); % Number of days
+number_of_days = length(daily(:,1)); % Number of days
 lenday = length(daily(1,:)); % Length of the day
 
 if isempty(varargin)
@@ -28,18 +28,19 @@ if isempty(varargin)
     numref = 1;
 else
     stackperiod = varargin{1};
+    num_days = varargin{2};
     
     if strcmp(stackperiod,'whole')
         % Default: The reference is the stack of the whole period
         ref = sum(daily);
         numref = 1;
 
-    elseif strcmp(stackperiod{1},'month')
+    elseif strcmp(stackperiod,'month')
         % The refrences are the monthly stacks
-        if length(stackperiod{1}) == 3
+        if length(num_days) == 3
             % Find the first and last year and and month:
-            fd = str2num(stackperiod{2}); % First day of recording
-            ld = str2num(stackperiod{3}); % Last day of recording
+            fd = str2num(num_days{1}); % First day of recording
+            ld = str2num(num_days{2}); % Last day of recording
             [y1,m1,d1,h,mn,s] = datevec(fd);
             [y2,m2,d2,h,mn,s] = datevec(fd);
 
@@ -75,15 +76,37 @@ else
         else
             error('There should be two inputs specifying the first and last recording day for the station pair')
         end
-    elseif strcmp(stackperiod{1},'days')
-        if length(stackperiod) == 2
-            numdays = str2num(stackperiod{2});
-            numref = num_days;
+    
+    elseif strcmp(stackperiod,'firstdays')
+        if length(num_days) == 1      
+            numdays1 = 1;
+            numdays2 = str2num(num_days{1});
+        elseif length(num_days) == 2
+            numdays1 = str2num(num_days{1});
+            numdays2 = str2num(num_days{2});
+        else
+            error('Specify the days the reference should be stacked over')
+        end        
+        numref = 1;
+        % The reference is the stack of the numdays first days of the
+        % period
+        ref = sum(daily(numdays1:numdays2,:));
+        
+    elseif strcmp(stackperiod,'oneday')     
+        numdays1 = str2num(num_days{1});
+        % The reference is one spesified day
+        ref = daily(numdays1,:)*10;      
+        numref = 1;
+                
+    elseif strcmp(stackperiod,'surrounding_days')
+        if length(varargin) == 2
+            numdays = str2num(num_days{2});
+            numref = number_of_days;
             % The reference is the stack of the numdays days prior to the
             % day it is compared to
-            ref = zeros(num_days,lenday);
-                for d = 1:num_days
-                    if d <= numdays
+            ref = zeros(number_of_days,lenday);
+                for d = 1:number_of_days
+                    if d <= number_of_days
                         ref(d,:) = sum(daily(1:numdays,:));
                     else
                         ref(d,:) = sum(daily(d-numdays:d,:));
@@ -91,19 +114,7 @@ else
                 end
         else
             error('Specify the number of days the refernce should be stacked over')
-        end    
-    elseif strcmp(stackperiod{1},'firstdays')
-        if length(stackperiod) == 2
-            numdays = str2num(stackperiod{2});
-            numref = 1;
-            % The reference is the stack of the numdays first days of the
-            % period
-            ref = sum(daily(1:numdays,:));
-
-        else
-            error('Specify the number of days the reference should be stacked over')
         end
-    end
-        
+    end     
 end
 end

@@ -15,7 +15,6 @@ function varargout = read_info_pz(pole_zero_filename,varargin)
 
 % Open the file
 pz_fid = fopen(pole_zero_filename,'r');
-%txt = readtable(pole_zero_file_name,'FileType','text','Delimiter',':','Delimiter',' ');
 
 % Loop over the entire file:
 line = 0;
@@ -112,33 +111,54 @@ while (line ~= -1)
             var_name = txt2{1};
             var = txt2{2};
             
-            if strcmp(var_name,'ZEROS')
+        if strcmp(var_name,'ZEROS')
                 num_zeros = str2double(var);
                 zzs = zeros(1,num_zeros);
-                for k = 1:num_zeros                   
+                pos01 = ftell(pz_fid);
+                k = 1;
+                while k < num_zeros              
                     line0 = fgets(pz_fid);
+                    pos0(k) = ftell(pz_fid);
+                    if ~strncmp(line0,'P',1) 
+                        txtcell0 = textscan(line0,'%s');
+                        txt0 = split(txtcell0{1});
 
-                    txtcell0 = textscan(line0,'%s');
-                    txt0 = split(txtcell0{1});
-
-                    zzs(k) = str2double(txt0{1}) + str2double(txt0{2})*1i;
-                end              
-            elseif strcmp(var_name,'POLES')
+                        if ~isnan(str2double(txt0{1}))
+                            zzs(k) = str2double(txt0{1}) + str2double(txt0{2})*1i;
+                            k = k+1;            
+                        else                       
+                            fseek(pz_fid,pos0(k-1),'bof');
+                            k = num_zeros+1;
+                        end
+                    else
+                        fseek(pz_fid,pos01,'bof');
+                         k = num_zeros+1;                        
+                    end
+                end
+            elseif strcmp(var_name,'POLES')                                
                 num_poles = str2double(var);
-                pps = zeros(1,num_poles);
-                for k = 1:num_poles                   
+                pps = zeros(1,num_zeros);
+                k = 1;
+                while k < num_poles                     
                     linep = fgets(pz_fid);
+                    posp(k) = ftell(pz_fid);
 
                     txtcellp = textscan(linep,'%s');
                     txtp = split(txtcellp{1});
-
-                    pps(k) = str2double(txtp{1}) + str2double(txtp{2})*1i;
-                end          
-            elseif strcmp(var_name,'CONSTANT')
+                    
+                    if ~isnan(str2double(txtp{1}))
+                        pps(k) = str2double(txtp{1}) + str2double(txtp{2})*1i;
+                        k = k+1;              
+                    else
+                        fseek(pz_fid,posp(k-1),'bof');
+                        k = num_poles+1;
+                    end
+                end
+            elseif strcmp(var_name,'CONSTANT')                                
                 constant = str2double(var);
-            end                
             end
         end
+    end
 end
 
 if strcmp(varargin{1},'PZ')

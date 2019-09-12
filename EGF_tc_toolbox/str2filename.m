@@ -1,4 +1,4 @@
-function filename=str2filename(filename,stationname,dateformat,varargin)
+function filename =str2filename(filename,stationname,dateformat,varargin)
 % Converts filename format from string to actual filename by replacing
 % stationname, date and other variables by actual given values
 %
@@ -38,7 +38,7 @@ for j=1:2:length(varargin)
          filename = strrep(filename,'ddd',num2str(doy,'%03d'));
         
         % If the next day is included in the name:
-        dp = datetime(var2)+day(1);
+        dp = datetime(var2)+days(1);
         filename = strrep(filename,'(DATE+1)',datestr(dp,dateformat));
     else
         filename = strrep(filename,var1,var2);

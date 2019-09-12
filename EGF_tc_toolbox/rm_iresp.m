@@ -10,7 +10,6 @@ function out = rm_iresp(data,npts,resp)
 % Output: 
 %       Out = the data after removal of instrument response
 %
-% 
 
 % Fourier transform the data:
 fdata=fft(data,npts);

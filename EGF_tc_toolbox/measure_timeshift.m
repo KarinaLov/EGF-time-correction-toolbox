@@ -15,49 +15,94 @@ function delay = measure_timeshift(settingsfile)
 % 
 
 % Default values from settings file
-[network,stations,first_day,last_day,channels,location,num_stat_cc,Fq,bpf,iterations,lag_red,stackperiod] = read_settings(settingsfile,'TD');
+[network,stations,first_day,last_day,channels,location,num_stat_cc,Fq,datesm,bpf,iterations,lag_red,stackperiod,signal_part,thr] = read_settings(settingsfile,'TD');
 
 validateattributes(stations,{'cell'},{'nonempty'});
 nost = length(stations);
+nch = length(channels);
 
-% Design the filter using the given cutoff frquencies and designfilt
-ord = 4; % Filter order, default
-df = designfilt('bandpassiir','FilterOrder',ord, ...
-    'HalfPowerFrequency1',bpf(1),'HalfPowerFrequency2',bpf(2), ...
-    'SampleRate',Fq,'DesignMethod','butter');
+fd = datetime(first_day);
+ld = datetime(last_day);
+datevector = [fd:ld];
+dates1 = [char(first_day) '-' char(last_day)];
+
+% Define the dates to run the td
+if isempty(datesm)
+    dates2 = dates1;
+    fdi = 1;
+    ldi = length(datevector);
+    datevector2 = datevector;
+else
+    dates2 = [char(datesm(1)) '-' char(datesm(2))];
+    fd2 = datetime(datesm(1));
+    ld2 = datetime(datesm(2));
+    fdi = find(datevector==fd2);
+    ldi = find(datevector==ld2);
+    datevector2 = fd2:ld2;
+end
+num_days=length(datevector2);
+
+% If spesified, filter the daily cross correlations:
+if ~isempty(bpf)
+    % Design the filter using the given cutoff frquencies and designfilt
+    ord = 4; % Filter order, default
+    df = designfilt('bandpassiir','FilterOrder',ord, ...
+        'HalfPowerFrequency1',bpf(1),'HalfPowerFrequency2',bpf(2), ...
+        'SampleRate',Fq,'DesignMethod','butter');
+end
 
 sp = 0; % Count the station pairs
+for ch = 1:nch
+    ii = 0;
+    channel = channels(ch);
 for jj = 1:nost
     % Loop over all the station pairs
     stationA = char(stations(jj));    
 
-for kk=1:num_stat_cc-(jj-1)
+for kk=1:num_stat_cc-ii
      sp=sp+1;
-    
+
     stationB = char(stations(jj+kk));
 
-    pair = [stationA '-' stationB]
-    dates = [char(first_day) '-' char(last_day)];
+    pair = [stationA '-' stationB '-' channel]
 
-    filename = ['Egf_' pair '_' dates '.mat'];
-    if exist(filename,'file') % Check that the file exists
-        file = load(filename);
-        EGF = file.estimatedGF.EGF;
-        lag = file.estimatedGF.lag;
-        num_days = file.estimatedGF.number_of_days;
-        num_corr = length(EGF(:,1));
+    % Extract information about the reference
+    stackp1 = stackperiod{1};
+    for k = 2:length(stackperiod)
+        stackdays{k-1} = stackperiod{k};
+    end   
+    if strcmp(stackp1,'increasing')
+        stackp = 'oneday';
     else
-        error(['Cannot find a mat.file with an estimated Greens function for stationpair ' pair '. Fileformat must be: Egf_' pair '_' dates '.mat' ])
+        stackp = stackp1;
     end
 
+    filename = ['Egf_' pair '_' dates1 '.mat'];
+    if exist(filename,'file') % Check that the file exists
+        file = load(filename);
+        EGF = file.estimatedGF.EGF(fdi:ldi,:);
+        lag = file.estimatedGF.lag;
+        num_corr = length(EGF(:,1));
+    else
+        error(['Cannot find a mat.file with an estimated Greens function for stationpair ' pair '. Fileformat must be: Egf_' pair '_' dates1 '.mat' ])
+    end
+    
     % Reduce computional effort by only using +-lag_red time lag
     zerolag = find(lag==0);
     egf = EGF(:,zerolag-lag_red:zerolag+lag_red);
     cl = lag(zerolag-lag_red:zerolag+lag_red);
-    Lc = length(cl);
+    Lc = length(cl);  
+    zero_lag = find(cl==0);
+    
+    dd1 = linspace(1,num_days,num_corr); % The days to be plotted
+    
+    % Determine signal and noise area for calculating SNR:
+    narrp = zero_lag+400:zero_lag+500;
+    narrn = zero_lag-400:zero_lag-500;
+    sarr = zero_lag-350:zero_lag+350;
     
     dayshift = egf;
-
+   
     % Preallocate for speed:   
     delay_dyn = zeros(1,num_corr);
     delay_dyn0 = zeros(1,num_corr);
@@ -66,15 +111,20 @@ for kk=1:num_stat_cc-(jj-1)
     
     for it=1:iterations
         % Calculate refernce traces based on spesification:
-        [ref,numref]=make_reference(dayshift,stackperiod);
+        [ref,numref]=make_reference(dayshift,stackp,stackdays);
 
         type = []; % Empty vector for spesifying how the time delay is measured
 
         k = 0; % Count the days
     for j=1:numref
 
-        % Filter the refrence
-        reff = filtfilt(df,ref(j,:));
+        % If spesified, filter the reference
+        if ~isempty(bpf)
+            % Filter the refrence
+            reff = filtfilt(df,ref(j,:));
+        else
+            reff = ref(j,:);
+        end
 
         % Separate the time lags:
         zero_lag = find(cl==0);
@@ -85,18 +135,24 @@ for kk=1:num_stat_cc-(jj-1)
         r_neg = r_neg1/max(abs(r_neg1));
         r_pos = r_pos1/max(abs(r_pos1));
         
-        % Find the static timing error (the unsymmetry of the negative and positive side of the reference):
-        [td_ref,lag_ref] = cross_conv(r_neg,r_pos,Fq);
-        delay_stat = lag_ref(find(td_ref==max(td_ref)));
+        % Find the static timing error (the unsymmetry of the reference):
+        delay_stat(it) = 0; %cl(find(abs(reff)==max(abs(reff))))
         
         refwhn = reff/max(abs(reff)); % Measure over the entire waveform
         
         % Loop over the daily cross correlations
         for d=1:num_corr
             k = k+1;
+            
+            % Calculate the SNR:
+            snrm(d) = max(abs(egf(d,sarr)))/std(egf(d,narrp)); 
 
-            % Filter the daily cross correlations
-            egff(k,:) = filtfilt(df,egf(k,:));
+            % If spesified, filter the daily cross correlations:
+            if ~isempty(bpf)
+                egff(k,:) = filtfilt(df,egf(k,:));
+            else
+                egff(k,:) = egf(k,:);
+            end          
 
             % Daily trace
             s_neg1 = flip(egff(k,1:zero_lag));
@@ -111,7 +167,7 @@ for kk=1:num_stat_cc-(jj-1)
             % Calculate timing difference:
             [td_neg1,lag_neg] = cross_conv(r_neg,s_neg,Fq);            
             [td_pos1,lag_pos] = cross_conv(r_pos,s_pos,Fq);
-            [td_wh,lag_wh] = cross_conv(crconvfn,refwhn,Fq);
+            [td_wh,lag_wh] = cross_conv(refwhn,crconvfn,Fq);
 
             % Normalize the correlations:
             au_nr = cross_conv(r_neg,r_neg,Fq);
@@ -125,7 +181,7 @@ for kk=1:num_stat_cc-(jj-1)
             td_neg = td_neg1/max(abs(sqrt(au_nr.*au_ns)));
             td_pos = td_pos1/max(abs(sqrt(au_pr.*au_ps)));
 
-            td_whn = td_wh/max(abs(sqrt(au_crc.*au_ref)));
+            td_whn = td_wh/max(abs(sqrt(au_ref.*au_crc)));
 
             % Calculate the maximum amplitude of the normalized signal
             maxtdn = max(td_neg);
@@ -133,8 +189,8 @@ for kk=1:num_stat_cc-(jj-1)
 
             maxtwh = max(td_whn);
 
-            % Only use signals with correlation coeffisient above the spesified thershold
-            if maxtdp>0.4 && maxtdn>0.4
+            % Only use signals with correlation coeffisient above the spesified threrhold
+            if maxtdp>thr && maxtdn>thr && (strcmp(signal_part, 'separated') || strcmp(signal_part, 'all'))
                 % Find the time shift of each side of the signal:
                 delay_neg(k) = lag_neg(find(td_neg==max(td_neg)));
                 delay_pos(k) = lag_pos(find(td_pos==max(td_pos)));
@@ -150,8 +206,7 @@ for kk=1:num_stat_cc-(jj-1)
                 else
                     % If not the delay is set to zero or the delay of the
                     % previous day:
-                    delay_dyn0(k) = NaN;
-                    
+                    delay_dyn0(k) = NaN;                   
                     if k>1
                         % The delay can not measured, and is therefore set 
                         % as the same as the previous day
@@ -159,12 +214,18 @@ for kk=1:num_stat_cc-(jj-1)
                     else
                         % If it is the first day the delay is set to zero
                         delay_dyn(k) = NaN;
-                    end
-                    
+                    end                   
                     type = [type '0'];
+                    
                 end
-
-            elseif maxtdp>0.4 && maxtdn<0.4
+            elseif maxtwh>thr && (strcmp(signal_part, 'whole') || strcmp(signal_part, 'all'))
+                % Measure the delay over the entire waveform       
+                delay_dyn0(k) = lag_wh(find(td_whn==max(td_whn)));
+                delay_dyn(k) = delay_dyn0(k);
+            
+                type = [type 'w'];
+                
+            elseif maxtdp>0.4 && maxtdn<0.4 && (strcmp(signal_part, 'positive') || strcmp(signal_part, 'all'))
                 % The positive amplitudes are higher than the negative, only 
                 % use the positive side of the signal:
                 delay_pos(k) = lag_pos(find(td_pos==max(td_pos)));
@@ -173,7 +234,7 @@ for kk=1:num_stat_cc-(jj-1)
 
                 type = [type 'p'];
                 
-            elseif maxtdn>0.4 && maxtdp<0.4
+            elseif maxtdn>0.4 && maxtdp<0.4 && (strcmp(signal_part, 'negative') || strcmp(signal_part, 'all'))
                 % The negative amplitudes are higher than the positive, only 
                 % use the negative side of the signal:
                 delay_neg(k) = lag_neg(find(td_neg==max(td_neg)));
@@ -181,13 +242,6 @@ for kk=1:num_stat_cc-(jj-1)
                 delay_dyn(k) = delay_dyn0(k);
 
                 type = [type 'n'];
-
-            elseif maxtwh>0.4
-                % Measure the delay over the entire waveform       
-                delay_dyn0(k) = lag_wh(find(td_whn==max(td_whn)));
-                delay_dyn(k) = delay_dyn0(k);
-            
-                type = [type 'w'];
 
             else
                 % No part of the signal have high enough quality (correlation
@@ -205,33 +259,44 @@ for kk=1:num_stat_cc-(jj-1)
                 
                 type = [type '0'];
             end
-
-            delay_dyn0(k) = delay_dyn0(k) + delay_stat;
-            delay_dyn(k) = delay_dyn(k) + delay_stat;
-            
-            % Correct for found timing errors:
-            if isnan(delay_dyn0(k))
-                dayshift(k,:) = egff(k,:);
-            else
-                t01 = -(delay_dyn0(k)/Fq);
-                omgc = exp([0:Lc-1]*Fq/Lc*-1i*2*pi*t01);
-                shift1 = fft(egff(k,:)).*omgc;
-                shift2 = ifft(shift1,'symmetric');
-                dayshift(k,:) = shift2;
-            end          
-        end 
-        
-    end
+            delay_dyn0(k) = delay_dyn0(k) + delay_stat(it);
+            delay_dyn(k) = delay_dyn(k) + delay_stat(it);
+        end
     end
     
-timedelay = struct('timedelay',delay_dyn,'timedelay0',delay_dyn0,'reference',reff,'pair',pair,'number_of_days',num_days,'type',type);
+    % Fit the line:
+    dd_fit = polyfit(dd1,delay_dyn,1);
+    dd_fit_eval = polyval(dd_fit,dd1);
+
+    for kk = 1:k
+        % Correct for found timing errors:
+        t01 = -dd_fit_eval(kk)/Fq;
+        omgc = exp([0:Lc-1]*Fq/Lc*-1i*2*pi*t01);
+        shift1 = fft(egf(kk,:)).*omgc;
+        shift2 = ifft(shift1,'symmetric');
+        dayshift(kk,:) = shift2;
+    end 
+    
+    % Change the refernce trace for next iteration:
+    if strcmp(stackp1,'increasing') 
+        stackp = 'firstdays';
+        stackdaysi = str2num(stackdays{2})*it;
+        if num_corr>stackdaysi
+            stackdays{2} = num2str(stackdaysi);
+        end
+    end
+    
+timedelay = struct('timedelay',delay_dyn,'timedelay0',delay_dyn0,'linear_td',dd_fit_eval,'reference',reff,'SNR',snrm,'pair',pair,'number_of_days',num_days,'type',type);
 delay(sp) = timedelay;
-save(['TD_' pair '_' dates '.mat'],'timedelay')
-
-%Header=struct('DELTA',1/Fq,'B',lag(1)/Fq,'E',lag(end)/Fq,'KSTNM',pair,'KHOLE',00,'KCMPNM',channels,'KNETWK',network,'NZDTTM',datevec(datevector(1)));
-%mksac(['Egf_' pair '_' dates '.SAC'],stack,datenum(first_day),Header)
-
+save(['TD_' pair '_' dates2 '.mat'],'timedelay')
+    end
+end
+% Make sure the stations are cross correlted with the rigth number of stations: 
+if ii >= num_stat_cc
+    ii = 0; 
+else
+    ii = ii + 1;
 end
 end
 end
-
+end

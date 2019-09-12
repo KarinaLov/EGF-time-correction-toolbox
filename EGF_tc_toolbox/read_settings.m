@@ -28,12 +28,19 @@ vouts{4} = 'yyyy-mm-dd';
 vouts{6} = 6; % missingfiles tolerance
 vouts{9} = 24; % cross correlation window length
 vouts{10} = 24; % cross correlation stacking length
+vouts{11} = 100; % overlapping percent cross correlation
+datesm = {};
+bpfm = {};
 iterations = 3;
 lag_red = 5000;
-stackperiod = 'whole';
+stackperiod = split('whole 0');
+thr = 0.4;
+fit = 'direct';
+fitperiod = {};
 RCS = {};
 xaxis = [-150 150];
 yaxis = [-100 100];
+titl = 'name';
 bpfp = {};
 fc1 = {};
 fc2 = {};
@@ -115,7 +122,15 @@ vo=1; % Count the number of varargout variables
     elseif strcmp(var_name, 'swl ')
         % Stacking widow length
         vouts{10}=str2num(var);
-    
+        
+    elseif strcmp(var_name, 'perco ')
+        % Stacking widow length
+        vouts{11}=str2num(var);
+
+    elseif strcmp(var_name, 'datesm ')
+        % Bandpass filter to apply before measuring time errors
+        datesm=split(var);
+        
     elseif strcmp(var_name, 'bpfm ')
         % Bandpass filter to apply before measuring time errors
         bpfm=str2num(var); 
@@ -133,6 +148,24 @@ vo=1; % Count the number of varargout variables
         % timing error measuring 
         stackperiod=split(var);   
             
+    elseif strcmp(var_name, 'signalpart ')
+        % Time period to stack over for to use for reference trace during
+        % timing error measuring 
+        signal_part = var; 
+        
+    elseif strcmp(var_name, 'threshold ')
+        % Time period to stack over for to use for reference trace during
+        % timing error measuring 
+        thr = str2num(var); 
+        
+    elseif strcmp(var_name, 'fit ')
+        % Station with reliable clock for the invertion 
+        fit = var;  
+
+    elseif strcmp(var_name, 'fitperiod ')
+        % Station with reliable clock for the invertion 
+        fitperiod = split(var);  
+            
     elseif strcmp(var_name, 'reference_clock_station ')
         % Station with reliable clock for the invertion 
         RCS = var;   
@@ -145,6 +178,10 @@ vo=1; % Count the number of varargout variables
         % Y-axsis for the measured time shift
         yaxis=str2num(var); 
         
+    elseif strcmp(var_name, 'titl ')
+        % PLot title
+        titl=var;
+        
     elseif strcmp(var_name, 'bpfp ')
         % Bandpass filter before plot
         bpfp=str2num(var);
@@ -156,23 +193,39 @@ vo=1; % Count the number of varargout variables
     elseif strcmp(var_name, 'cutoff_freq2 ')
         % Bandpass filter before plot
         fc2 = str2num(var);
+            
+    elseif strcmp(var_name, 'filenameO ')
+        % Filename format
+        filenameO=var;
+        
+    elseif strcmp(var_name, 'fileformatO ')
+        % Fileformat
+        fileformatO=var;
+        
+    elseif strcmp(var_name, 'dateformatO ')
+        % Format of the date in the filename
+        dateformatO=var;
     end       
  end
- 
+
 vo = length(vouts); % number of possible varargout 
 if isempty(varargin)
     % Read the entire file
     varargout=vouts;
-    varargout{vo+1}=bpfm;
-    varargout{vo+2}=iterations;
-    varargout{vo+3}=stackperiod;
-    varargout{vo+4}=RCS;
-    varargout{vo+5}=xaxis;
-    varargout{vo+6}=yaxis;
-    varargout{vo+7}=bpfp;
-    varargout{vo+8}=lag_red;
-    varargout{vo+9}=fc1;
-    varargout{vo+10}=fc2;
+    varargout{vo+1}=datesm;
+    varargout{vo+2}=bpfm;
+    varargout{vo+3}=iterations;
+    varargout{vo+4}=stackperiod;
+    varargout{vo+5}=fit;
+    varargout{vo+6}=fitperiod;
+    varargout{vo+7}=RCS;
+    varargout{vo+8}=xaxis;
+    varargout{vo+9}=yaxis;
+    varargout{vo+10}=titl;
+    varargout{vo+11}=bpfp;
+    varargout{vo+12}=lag_red;
+    varargout{vo+13}=fc1;
+    varargout{vo+14}=fc2;
     
 elseif strcmp(varargin{1},'EGF')
     % Read the variables used to estimate the Green's function
@@ -180,23 +233,32 @@ elseif strcmp(varargin{1},'EGF')
 
 elseif strcmp(varargin{1},'TD')
     % Read the variables used to measure timeshifts
-    varargout{1}=bpfm;
-    varargout{2}=iterations;
-    varargout{3}=lag_red;
-    varargout{4}=stackperiod;
+    varargout{1}=datesm;
+    varargout{2}=bpfm;
+    varargout{3}=iterations;
+    varargout{4}=lag_red;
+    varargout{5}=stackperiod;
+    varargout{6}=signal_part;
+    varargout{7}=thr;
             
 elseif strcmp(varargin{1},'INVERT')
     % Read the variables used to plot
     varargout{1}=vouts{9}; % Stack window length
-    varargout{2}=RCS;
-    varargout{3}=yaxis;
+    varargout{2}=fit;
+    varargout{3}=fitperiod;
+    varargout{4}=RCS;
+    varargout{5}=yaxis;
+    varargout{6}=datesm;
+    varargout{7}=titl;
     
 elseif strcmp(varargin{1},'PLOT')
     % Read the variables used to plot
     varargout{1}=xaxis;
     varargout{2}=yaxis;
-    varargout{3}=bpfp;
-    varargout{4}=lag_red;
+    varargout{3}=titl;
+    varargout{4}=bpfp;
+    varargout{5}=lag_red;
+    varargout{6}=datesm;
     
 elseif strcmp(varargin{1},'FILTER')
     % Read the variables used to plot
@@ -204,6 +266,8 @@ elseif strcmp(varargin{1},'FILTER')
     varargout{2}=lag_red;
     varargout{3}=fc1;
     varargout{4}=fc2;
+    varargout{5}=datesm;
+    varargout{6}=titl;
  
 elseif strcmp(varargin{1},'DISTANCE')
     % Read the variables used to plot
@@ -211,6 +275,17 @@ elseif strcmp(varargin{1},'DISTANCE')
     varargout{2}=vouts{3}; % pole zero file
     varargout{3}=vouts{3}; % Dateformat
     varargout{4}=lag_red;   
+    varargout{5}=bpfp;  
+    varargout{6}=datesm;
+    
+elseif strcmp(varargin{1},'CORRECT')
+    % Read the variables used to CORRECT the Green's function
+    varargout=vouts;
+    varargout{vo+1}=filenameO;
+    varargout{vo+2}=fileformatO;
+    varargout{vo+3}=dateformatO;
+    varargout{vo+4}=datesm;
+    
 end
 end
 
