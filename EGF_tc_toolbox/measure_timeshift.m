@@ -11,7 +11,7 @@ function delay = measure_timeshift(settingsfile)
 %
 % Sub-function: read_settings.m, make_reference.m and cross_conv.m
 %
-% Written by Karina Løviknes 
+% Written by Karina L??viknes 
 % 
 
 % Default values from settings file
@@ -62,7 +62,12 @@ for ch = 1:nch
         stationA = char(stations(jj));    
 
         for kk=1:num_stat_cc-ii
-             sp=sp+1;
+            % check that we're not running out of stations on the list
+            if jj+kk > nost
+                continue
+            end
+            
+            sp=sp+1;
 
             stationB = char(stations(jj+kk));
 

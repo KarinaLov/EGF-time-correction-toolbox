@@ -13,7 +13,7 @@ function egfs = estimate_GF(settingsfile)
 % Sub-function: read_settings.m, str2filename.m, gen_response.m, 
 % read_daily.m, prepros.m and cross_conv.m
 %
-% Written by Karina Løviknes 
+% Written by Karina L??viknes 
 % 
 
 % Default values from settings file:
@@ -75,7 +75,12 @@ for ch = 1:nch
         SAdata = Sdata(:,:,jj);
 
         for kk = 1:num_stat_cc-ii
-             sp = sp+1;
+            % check that we're not running out of stations on the list
+            if jj+kk > nost
+                continue
+            end
+            
+            sp = sp+1;
 
             stationB = char(stations(jj+kk))
             respB = resp(jj+kk,:);

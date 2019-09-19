@@ -13,7 +13,7 @@
 %
 % Sub-function: read_settings.m
 %
-% Written by Karina Løviknes 
+% Written by Karina L??viknes 
 % 
 
 % Default values from settings file
@@ -72,6 +72,11 @@ for jj=1:nost-1
     stationA=char(stations(jj));    
 
     for kk=1:num_stat_cc-ii
+        % check that we're not running out of stations on the list
+        if jj+kk > nost
+            continue
+        end
+            
         sp=sp+1;
         spp=0;
         %h=figure
