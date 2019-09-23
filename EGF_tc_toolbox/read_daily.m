@@ -35,10 +35,13 @@ function varargout = read_daily(network, stationname, channels, location,...
 
 Name = {[network '-' stationname '-' channels]};
 num_days = length(datevector);
-tspd = Fq*60*60*24; % Total samples per day
+nSamplesPerDay = Fq*60*60*24; % Total samples per day
+listFileExists = zeros(num_days,1);
 
-fe = 0; % Count the days when the file does not exist
-for d = 1:num_days    
+parfor d = 1:num_days
+    %fe = 0; % Count the days when the file does not exist
+   
+    
     % Extract the filename
     filename = str2filename(fileName, stationname, dateformat,...
         'network', network, 'channels', channels, 'location', location,...
@@ -48,7 +51,7 @@ for d = 1:num_days
     Warning_msg = {[]};
 
     if java.io.File(filename).exists  % Check that the file exists        
-        fe = 0;
+        listFileExists(d) = 1;
         if strcmp(fileformat,'sac')
             % Retrieve a sac file
             filename
@@ -95,12 +98,16 @@ for d = 1:num_days
                 time_vector = time_vector0(:,1); % Time vector
             end
 
+            % initialize time vectors
+            ts0 = zeros(length(file),1);
+            te0 = zeros(length(file),1);
             % Extract the starting time:
             ts0(1) = time_vector(1); % Start of recording
             te0(1) = time_vector(end); % Start of recording
             
             % loop over parts of a daily file
-            for j = 2: length(file)
+            nFileParts = length(file);
+            for j = 2:1:nFileParts
                 
                 data1 = double(file(j).data); % The data vector
                 Count1 = file(j).sampleCount; % Number of points
@@ -119,7 +126,7 @@ for d = 1:num_days
                 % Extract the starting time:
                 ts0(j) = time_vector1(1); % Start of recording
                 te0(j) = time_vector1(end); % Start of recording
-
+            
                 % Find the time difference between the end of the last file and
                 % the beginning of the current file:
                 [Ys0,Ms0,Ds0,Hs0,MNs0,Ss0] = datevec(ts0(j));
@@ -140,7 +147,7 @@ for d = 1:num_days
                     % Interpolate:
                     msdiff = round(tsdiff *1000);
                     disp(['Time difference between end of last and start ',...
-                        'of current file: ', num2str(msdiff)])
+                        'of current file: ', num2str(msdiff), ' ms'])
                     nq = 1000/Fq;
                     tv = (1:Count1)';
                     tvq = (1:Count1*nq)';
@@ -240,41 +247,38 @@ for d = 1:num_days
                 warning('Changed starttime')
                 Warning_msg = [Warning_msg 'changed starttime'];
              end
-
         end
 
-         tspd=tspd;
-         if Count>=tspd
-             % The numer of points is more or equal the total number of
-             % samples
+        if Count>=nSamplesPerDay
+            % The numer of points is more or equal the total number of
+            % samples
 
-             num_po = Count-tspd;
-             te1 = time_vector(tspd,1); % The end of recording
+            num_po = Count-nSamplesPerDay;
+            te1 = time_vector(nSamplesPerDay,1); % The end of recording
 
-             hour2 = str2num(datestr(te1,'HH'));  
-             min2 = str2num(datestr(te1,'MM'));
-             sec2 = str2num(datestr(te1,'ss'));
-             ms2 = str2num(datestr(te1,'FFF'));
+            hour2 = str2num(datestr(te1,'HH'));  
+            min2 = str2num(datestr(te1,'MM'));
+            sec2 = str2num(datestr(te1,'ss'));
+            ms2 = str2num(datestr(te1,'FFF'));
 
-             if hour2==23 && min2==59 && sec2==59 && ms2>=1000*(1-delta)...
-                     && ms2<=999
-                % Correct endtime
-               data = data(1:tspd);
-               time_vector = time_vector(1:tspd);
-               Count = tspd;
-               timend = te1;
+            if hour2==23 && min2==59 && sec2==59 && ms2>=1000*(1-delta)...
+                    && ms2<=999
+               % Correct endtime
+              data = data(1:nSamplesPerDay);
+              time_vector = time_vector(1:nSamplesPerDay);
+              Count = nSamplesPerDay;
+              timend = te1;
 
-             else
-                 Endtime = datestr(te1,'mmmm dd, yyyy HH:MM:SS.FFF');
-                 warning('Doublecheck endtime');
-                 Warning_msg = [Warning_msg 'Wrong endtime'];
-
-                 data = data(1:tspd);
-                 time_vector = time_vector(1:tspd);
-                 Count = tspd;
-                 timend = time_vector(end);
-             end
-         else
+            else
+                Endtime = datestr(te1,'mmmm dd, yyyy HH:MM:SS.FFF');
+                warning('Doublecheck endtime');
+                Warning_msg = [Warning_msg 'Wrong endtime'];
+                data = data(1:nSamplesPerDay);
+                time_vector = time_vector(1:nSamplesPerDay);
+                Count = nSamplesPerDay;
+                timend = time_vector(end);
+            end
+        else
              % Count is less than total samples pr day
              te1 = time_vector(Count,1);
 
@@ -293,13 +297,13 @@ for d = 1:num_days
                  Warning_msg = [Warning_msg 'Wrong count'];
                                   
                  % Time gap at the end of the day segment
-                 num_po = tspd-Count;
+                 num_po = nSamplesPerDay-Count;
 
                  mzp = zeros(num_po,1);
                  data = [data; mzp];
              else
                  % Time gap at the end of the day segment
-                 num_po = tspd-Count;
+                 num_po = nSamplesPerDay-Count;
 
                  mzp = zeros(num_po,1);
                  data = [data; mzp];
@@ -323,15 +327,15 @@ for d = 1:num_days
          dinfo(d) = struct('Name',Name,'Count',Count,'Frequency',Fq,...
              'Starttime',Starttime,'Endtime',Endtime);
     else
-        fe = fe+1;
-        disp(['Missing files in a row: ', num2str(fe)])
-        if fe > missingfiles
-            error('Too many missing files on row')
-        end
-        data = zeros(tspd,1);
+        %fe = fe+1;
+        % disp(['Missing files in a row: ', num2str(fe)])
+        %if fe > missingfiles
+        %    error('Too many missing files on row')
+        %end
+        data = zeros(nSamplesPerDay,1);
         warning('The file does not exist')
         date = datevector(d);
-        Count = tspd;
+        Count = nSamplesPerDay;
         Starttime = 0;
         Endtime = 0;
         Warning_msg = [Warning_msg 'Missing file'];
@@ -342,9 +346,25 @@ for d = 1:num_days
         dinfo(d) = struct('Name', Name, 'Count', Count, 'Frequency', Fq,...
             'Starttime', Starttime, 'Endtime', Endtime);
     end
-    lddd=size(data);
-    dataout(d,:) = data(1:tspd)';
+    lddd = size(data);
+    dataout(d,:) = data(1:nSamplesPerDay)';
 end
+
+% check how many files in a row are missing
+nFilesMissingInRow = 0;
+for d = 1:1:num_days
+    if ~listFileExists(d)
+        nFilesMissingInRow = nFilesMissingInRow + 1;
+    else 
+        nFilesMissingInRow = 0;
+    end
+    if nFilesMissingInRow > missingfiles
+        error(['Missing too many files', num2str(nFilesMissingInRow)],...
+            ' in a row.')
+    end
+end
+
+
 if nargout==1
     varargout{1} = dataout;
 elseif nargout==2
