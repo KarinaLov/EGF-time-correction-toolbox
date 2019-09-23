@@ -202,7 +202,10 @@ for d = 1:num_days
              mzp = zeros(missing_p,1);
              data = [mzp; data];
              Count = length(data);
-             time_vector = [datenum(datetime(datestr(time_vector(1),'yyyy-mm-dd HH:MM:SS.FFF'),'InputFormat','yyyy-MM-dd HH:mm:ss.SSS') - flip(seconds((1:missing_p)/Fq)))'; time_vector];
+             time_vector = [datenum(datetime(datestr(time_vector(1),...
+                 'yyyy-mm-dd HH:MM:SS.FFF'), 'InputFormat',...
+                 'yyyy-MM-dd HH:mm:ss.SSS') - flip(seconds(...
+                 (1:missing_p)/Fq)))'; time_vector];
 
              timestart = time_vector(1);
 
@@ -220,7 +223,12 @@ for d = 1:num_days
                 zms = zeros(ms1,1);
                 data_intp1 = interp1(tv,data,tvq,'spline');
                 data_newstarttime = [zms; data_intp1];
-                newtime = [datenum(datetime(datestr(time_vector(1),'yyyy-mm-dd HH:MM:SS.FFF'),'InputFormat','yyyy-MM-dd HH:mm:ss.SSS') - flip(milliseconds(1:ms1)))'; datenum(datetime(datestr(time_vector(1),'yyyy-mm-dd HH:MM:SS.FFF'),'InputFormat','yyyy-MM-dd HH:mm:ss.SSS') + milliseconds(0:Count*nq))'];
+                newtime = [datenum(datetime(datestr(time_vector(1),...
+                    'yyyy-mm-dd HH:MM:SS.FFF'), 'InputFormat',...
+                    'yyyy-MM-dd HH:mm:ss.SSS') - flip(milliseconds(1:ms1)))';...
+                    datenum(datetime(datestr(time_vector(1),...
+                    'yyyy-mm-dd HH:MM:SS.FFF'), 'InputFormat',...
+                    'yyyy-MM-dd HH:mm:ss.SSS') + milliseconds(0:Count*nq))'];
                 data = downsample(data_newstarttime,nq);
                 time_vector = downsample(newtime,nq);
                 Count = length(data);
@@ -248,7 +256,8 @@ for d = 1:num_days
              sec2 = str2num(datestr(te1,'ss'));
              ms2 = str2num(datestr(te1,'FFF'));
 
-             if hour2==23 && min2==59 && sec2==59 && ms2>=1000*(1-delta) && ms2<=999
+             if hour2==23 && min2==59 && sec2==59 && ms2>=1000*(1-delta)...
+                     && ms2<=999
                 % Correct endtime
                data = data(1:tspd);
                time_vector = time_vector(1:tspd);
@@ -274,7 +283,8 @@ for d = 1:num_days
              sec2 = str2num(datestr(te1,'ss'));
              ms2 = str2num(datestr(te1,'FFF'));
 
-             if hour2==23 && min2==59 && sec2==59 && ms2>=1000*(1-delta) && ms2<=999
+             if hour2==23 && min2==59 && sec2==59 && ms2>=1000*(1-delta)...
+                     && ms2<=999
                  % The endtime is correct, count number must be wrong
                  timend=te1;
 
@@ -294,7 +304,10 @@ for d = 1:num_days
                  mzp = zeros(num_po,1);
                  data = [data; mzp];
                  Count = length(data);
-                 newtime = [time_vector; datenum(datetime(datestr(time_vector(1),'yyyy-mm-dd HH:MM:SS.FFF'),'InputFormat','yyyy-MM-dd HH:mm:ss.SSS') + seconds((0:num_po)/Fq))'];
+                 newtime = [time_vector; datenum(datetime(datestr(...
+                     time_vector(1), 'yyyy-mm-dd HH:MM:SS.FFF'),...
+                     'InputFormat','yyyy-MM-dd HH:mm:ss.SSS') + seconds(...
+                     (0:num_po)/Fq))'];
 
                  timend = time_vector(end);
 
@@ -326,8 +339,8 @@ for d = 1:num_days
         Warning_message = {Warning_msg};
         daily(d,:) = table(Name,Count,Fq,{Starttime},{Endtime},...
             {Warning_message{1,1:end}}); 
-        dinfo(d) = struct('Name',Name,'Count',Count,'Frequency',Fq,...
-            'Starttime',Starttime,'Endtime',Endtime);
+        dinfo(d) = struct('Name', Name, 'Count', Count, 'Frequency', Fq,...
+            'Starttime', Starttime, 'Endtime', Endtime);
     end
     lddd=size(data);
     dataout(d,:) = data(1:tspd)';
