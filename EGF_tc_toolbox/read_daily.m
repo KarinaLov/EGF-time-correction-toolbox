@@ -40,7 +40,13 @@ listFileExists = zeros(num_days,1);
 
 parfor d = 1:num_days
     %fe = 0; % Count the days when the file does not exist
-   
+    
+    % Initialize waveform variables
+    data = zeros(0,0);
+    time_vector = zeros(0,0);
+    time_vector0 = zeros(0,0);
+    Count = zeros(0,0);
+    delta = zeros(0,0);
     
     % Extract the filename
     filename = str2filename(fileName, stationname, dateformat,...
@@ -57,6 +63,7 @@ parfor d = 1:num_days
             filename
             file = rdsac(filename);
 
+            % Initialize 
             data = file.d; % The data vector
             time_vector = file.t; % Time vector
             Count = file.HEADER.NPTS; % Number of points  
@@ -84,18 +91,26 @@ parfor d = 1:num_days
             Count = file(1).sampleCount; % Number of points
             sps = file(1).sampleRate; % The sampling frequency
 
-            % Extrct the time vector if exists
-            time_vector0 = file(1).matlabTimeVector; % Time vector 
-            if isempty(time_vector0)
-                time_vector_str = datetime(file(1).dateTimeString,...
-                    'InputFormat','yyyy/MM/dd HH:mm:ss.SSS') + seconds(...
-                    (0:Count)/Fq);
-                time_vector = datenum(time_vector_str');
-                warning('The time vector is empty');
-                Warning_msg = 'The time vector is empty';
-
+            % Extract the time vector if exists
+            if isfield(file(1),'matlabTimeVector')
+                time_vector0 = file(1).matlabTimeVector; % Time vector 
+                if isempty(time_vector0)
+                    time_vector_str = datetime(file(1).dateTimeString,...
+                        'InputFormat','yyyy/MM/dd HH:mm:ss.SSS') +...
+                        seconds((0:Count)/Fq);
+                    time_vector = datenum(time_vector_str');
+                    Warning_msg = 'The time vector is empty';
+                    warning(Warning_msg)
+                else
+                    time_vector = time_vector0(:,1); % Time vector
+                end
             else
-                time_vector = time_vector0(:,1); % Time vector
+                time_vector_str = datetime(file(1).dateTimeString,...
+                        'InputFormat','yyyy/MM/dd HH:mm:ss.SSS') +...
+                        seconds((0:Count)/Fq);
+                time_vector = datenum(time_vector_str');
+                Warning_msg = 'The time vector is empty';
+                warning(Warning_msg)
             end
 
             % initialize time vectors
