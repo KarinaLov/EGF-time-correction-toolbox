@@ -1,4 +1,5 @@
-function [network,stations,first_day,last_day,channels,location,num_stat_cc,Fq,varargout] = read_settings(settingsfile,varargin)
+function [network, stations, first_day, last_day, channels, location,...
+    num_stat_cc, Fq, varargout] = read_settings(settingsfile, varargin)
 % Reads the settings file
 %
 % Input:
@@ -16,10 +17,10 @@ function [network,stations,first_day,last_day,channels,location,num_stat_cc,Fq,v
 %       num_stat_cc=Number of stations each station is cross correlated with
 %       varargout
 %
-% Written by Karina Løviknes 
+% Written by Karina L??viknes 
 % 
 
-% The optional variables are empty or default if not spesified
+% The optional variables are empty or default if not specified
 vouts = {};
 vouts{1} = 'network.stationname.00.HHchannels.D.yyyy.ddd.000000.SAC';
 vouts{2} = 'sac';

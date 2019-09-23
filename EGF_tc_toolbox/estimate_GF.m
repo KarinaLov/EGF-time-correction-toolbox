@@ -6,7 +6,7 @@ function egfs = estimate_GF(settingsfile)
 %       settingsfile = text file where the input values are defined
 %
 % Output:
-%       egfs = struct containing the estimated Green's function, lag time, 
+%       egfs = struct containing the estimdecimaated Green's function, lag time, 
 %               the number of the days, and name of station pair
 %
 %
