@@ -98,66 +98,67 @@ for d = 1:num_days
             % Extract the starting time:
             ts0(1) = time_vector(1); % Start of recording
             te0(1) = time_vector(end); % Start of recording
-           
+            
+            % loop over parts of a daily file
             for j = 2: length(file)
                 
-            data1 = double(file(j).data); % The data vector
-            Count1 = file(j).sampleCount; % Number of points
+                data1 = double(file(j).data); % The data vector
+                Count1 = file(j).sampleCount; % Number of points
 
-            % Extrct the time vector if exists
-            time_vector01 = file(j).matlabTimeVector; % Time vector 
-            if isempty(time_vector0)
-                time_vector_str1 = datetime(file(j).dateTimeString,...
-                    'InputFormat','yyyy/MM/dd HH:mm:ss.SSS') + seconds(...
-                    (0:Count1)/Fq);
-                time_vector1 = datenum(time_vector_str1');
-            else
-                time_vector1 = time_vector01(:,1); % Time vector
-            end
-                
-            % Extract the starting time:
-            ts0(j) = time_vector1(1); % Start of recording
-            te0(j) = time_vector1(end); % Start of recording
-            
-            % Find the time difference between the end of the last file and
-            % the beginning of the current file:
-            [Ys0,Ms0,Ds0,Hs0,MNs0,Ss0] = datevec(ts0(j));
-            [Ye0,Me0,De0,He0,MNe0,Se0] = datevec(te0(j-1));
-            
-            tsdiff = ((Hs0-He0)*60*60)+((MNs0-MNe0)*60)+(Ss0-Se0);
-            fsdiff = round(tsdiff * Fq);
-            if fsdiff == 1
-                data = [data; data1];
-                time_vector = [time_vector; time_vector1];
-                
-            elseif fsdiff > 1
-                zsp = zeros(round(fsdiff),1);
-                data = [data; zsp; data1];
-                time_vector = [time_vector; zsp; time_vector1];
-     
-            elseif (fsdiff-tsdiff*Fq) ~= 0 && Fq<1000
-                % Interpolate:
-                msdiff = round(tsdiff *1000);
-                disp(['Time difference between end of last and start ',...
-                    'of current file: ', num2str(msdiff)])
-                nq = 1000/Fq;
-                tv = (1:Count1)';
-                tvq = (1:Count1*nq)';
+                % Extrct the time vector if exists
+                time_vector01 = file(j).matlabTimeVector; % Time vector 
+                if isempty(time_vector0)
+                    time_vector_str1 = datetime(file(j).dateTimeString,...
+                        'InputFormat','yyyy/MM/dd HH:mm:ss.SSS') +...
+                        seconds((0:Count1)/Fq);
+                    time_vector1 = datenum(time_vector_str1');
+                else
+                    time_vector1 = time_vector01(:,1); % Time vector
+                end
 
-                zmsp = zeros(msdiff,1);
-                data_intp11 = interp1(tv,data1,tvq);
-                data_intp2 = [zmsp; data_intp11];
-                data = [data; decimate(data_intp2,nq)];
-                
-                newtime1 = [datenum(datetime(datestr(time_vector1(1),...
-                    'yyyy-mm-dd HH:MM:SS.FFF'),'InputFormat',...
-                    'yyyy-MM-dd HH:mm:ss.SSS') - flip(milliseconds(1:msdiff)))';...
-                    datenum(datetime(datestr(time_vector1(1),...
-                    'yyyy-mm-dd HH:MM:SS.FFF'),'InputFormat',...
-                    'yyyy-MM-dd HH:mm:ss.SSS') + milliseconds(0:Count1*nq))'];
-                time_vector1 = downsample(newtime1,nq);
-            end
-            Count = length(data);        
+                % Extract the starting time:
+                ts0(j) = time_vector1(1); % Start of recording
+                te0(j) = time_vector1(end); % Start of recording
+
+                % Find the time difference between the end of the last file and
+                % the beginning of the current file:
+                [Ys0,Ms0,Ds0,Hs0,MNs0,Ss0] = datevec(ts0(j));
+                [Ye0,Me0,De0,He0,MNe0,Se0] = datevec(te0(j-1));
+
+                tsdiff = ((Hs0-He0)*60*60)+((MNs0-MNe0)*60)+(Ss0-Se0);
+                fsdiff = round(tsdiff * Fq);
+                if fsdiff == 1
+                    data = [data; data1];
+                    time_vector = [time_vector; time_vector1];
+
+                elseif fsdiff > 1
+                    zsp = zeros(round(fsdiff),1);
+                    data = [data; zsp; data1];
+                    time_vector = [time_vector; zsp; time_vector1];
+
+                elseif (fsdiff-tsdiff*Fq) ~= 0 && Fq<1000
+                    % Interpolate:
+                    msdiff = round(tsdiff *1000);
+                    disp(['Time difference between end of last and start ',...
+                        'of current file: ', num2str(msdiff)])
+                    nq = 1000/Fq;
+                    tv = (1:Count1)';
+                    tvq = (1:Count1*nq)';
+
+                    zmsp = zeros(msdiff,1);
+                    data_intp11 = interp1(tv,data1,tvq);
+                    data_intp2 = [zmsp; data_intp11];
+                    data = [data; decimate(data_intp2,nq)];
+
+                    newtime1 = [datenum(datetime(datestr(time_vector1(1),...
+                        'yyyy-mm-dd HH:MM:SS.FFF'),'InputFormat',...
+                        'yyyy-MM-dd HH:mm:ss.SSS') - flip(milliseconds(1:msdiff)))';...
+                        datenum(datetime(datestr(time_vector1(1),...
+                        'yyyy-mm-dd HH:MM:SS.FFF'),'InputFormat',...
+                        'yyyy-MM-dd HH:mm:ss.SSS') + milliseconds(0:Count1*nq))'];
+                    time_vector1 = downsample(newtime1,nq);
+                end
+                Count = length(data);        
             end
             
             % Check if downsampling
@@ -166,7 +167,7 @@ for d = 1:num_days
                 data1 = decimate(data,deci);
                 time_vector = decimate(time_vector,deci);
                 Count = length(data);
-                sps1 = sps1/deci;
+                sps = sps/deci;
             end    
 
             % Check that the given samplingrate mach the samplingrate of the file:    
