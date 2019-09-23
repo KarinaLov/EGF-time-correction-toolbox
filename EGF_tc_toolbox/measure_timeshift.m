@@ -85,7 +85,7 @@ for ch = 1:nch
             end
 
             filename = ['Egf_' pair '_' dates1 '.mat'];
-            if exist(filename,'file') % Check that the file exists
+            if java.io.File(filename).exists  % Check that the file exists                
                 file = load(filename);
                 EGF = file.estimatedGF.EGF(fdi:ldi,:);
                 lag = file.estimatedGF.lag;

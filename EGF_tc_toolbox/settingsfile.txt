@@ -3,34 +3,46 @@
 % OBS03 OBS04 OBS05 OBS06 OBS11 OBS12
 %% Station and time period specifications (mandatory values):
 % Example stations:
-network = 1L
-stations = OBS06 OBS11 OBS12
+network = 2G
+network = 2G
+stations = BAS20 BAS22 BAS23
 channels = Z
 location = 00
-first_day = 2017-06-25
-last_day = 2017-07-05
+first_day = 2018-12-20
+last_day = 2018-12-22
 
 % Number of stations each station is cross correlated with, default is number of stations - 1
 num_stat_cc = 2
 
-% Sampling frequency (must be the same as the sampling frequency given in the file header)
+% Sampling frequency (must be the same as the sampling frequency given in 
+% the file header)
 Fq = 100
 
-% The filename format, must include station name, date and folder (if in another folder), if not specified default is [network.stationname.location.HHchannels.D.yyyy.ddd.SAC]
-filename = ../EGF_tc_toolbox/MOHN_ALL/stationname/network.stationname.(DATE).channels.mseed
-%filename = stationname/network.stationname.00.HHchannels.D.yyyy.ddd.000000.SAC
+% The filename format, must include station name, date and folder (if in 
+% another folder), if not specified default is [network.stationname.location.HHchannels.D.yyyy.ddd.SAC]
+% filename = ../EGF_tc_toolbox/MOHN_ALL/stationname/network.stationname.(DATE).channels.mseed
+% filename = stationname/network.stationname.00.HHchannels.D.yyyy.ddd.000000.SAC
+filename = /Users/felix/SSHFS/seismonas/seismo/BASE2018-/archive/yyyy/network/stationname/HHchannels.D/network.stationname.location.HHchannels.D.yyyy.ddd
+% 2018/2G/BAS20/HHZ.D/2G.BAS20.00.HHZ.D.2018.234
+
 
 % Input file format, can be either sac (default) or miniseed
 %fileformat = sac
 fileformat = miniseed
 
 % The date format used in the filename, default is 'yyyy-mm-dd'
-dateformat = yyyy.mm.dd
+% dateformat = yyyy.mm.dd
+dateformat = yyyy.ddd
 
 %% EGF:
-% Specify the values specifically for loading the files and for estimating the Green's function
-% Pole-zero file format, if not specified the default format is [SAC_PZs_NS_stationname_HHchannels.pz]
-pz_file = ../EGF_tc_toolbox/MOHN_ALL/PZ_stationname.pz
+% Specify the values specifically for loading the files and for estimating 
+% the Green's function
+% Pole-zero file format, if not specified the default format is 
+% [SAC_PZs_NS_stationname_HHchannels.pz]
+
+% pz_file = ../EGF_tc_toolbox/MOHN_ALL/PZ_stationname.pz
+pz_file = /Users/felix/Documents2/BASE/TimeCorrections/EGF_tc_toolbox_2/CAL/BASE/SAC_PZs_2G_stationname_HHZ.pz
+
 
 % Decimate factor, if no downsampling is needed leave out or blank
 % decimate = 
@@ -61,19 +73,30 @@ perco = 50
 % Bandpass filter to apply on the daily noise correlations and reference trace before measuring time delays, if not specified no filter will be applied
 %bpfm = [5 15]
 
-% Number of iterations to run the measuring process, must be an integer, default is 3
+% Number of iterations to run the measuring process, must be an integer, 
+% default is 3
 iterations = 3
 
-% Only use +-lag_red time lag to reduce computational effect, default is 2000 (in samples)
+% Only use +-lag_red time lag to reduce computational effect, default is 
+% 2000 (in samples)
 lag_red = 500
 
-% Specification about the time period the reference is stacked over. The options are the whole period (default), months (the first and last day of the correlation period must be specified), surrounding_days, firstdays (number of days must be specified), and increase (for using the signal of the first day as reference in the first iteration and then a spesified numdays for the next iteration):
-stackperiod = increasing 1 10
+% Specification about the time period the reference is stacked over. The 
+% options are the whole period (default), months (the first and last day of
+% the correlation period must be specified), surrounding_days, firstdays 
+% (number of days must be specified), and increase (for using the signal of
+% the first day as reference in the first iteration and then a specified 
+% numdays for the next iteration):
+stackperiod = increasing 1 3
 
-% Specification about which part of the signal should be used to measure the timeshift, the options are all (default), separated, whole, positive and negative
+% Specification about which part of the signal should be used to measure 
+% the timeshift, the options are all (default), separated, whole, positive 
+% and negative
 signalpart = whole
 
-% Only use signals with correlation coeffisient above the spesified threshold (if the stackperiod 'increase' is chosen, the threshold will increase by 0.2 during the second iteration):
+% Only use signals with correlation coefficient above the specified 
+% threshold (if the stackperiod 'increase' is chosen, the threshold will 
+% increase by 0.2 during the second iteration):
 threshold = 0.2
 
 %% INVERT:
@@ -112,8 +135,8 @@ cutoff_freq2 = [48 12 25 34 48];
 filenameO = stationname/network.stationname.00.HHchannels.D.yyyy.ddd.000000.SAC
 
 % Input file format, can be either sac (default) or miniseed
-fileformatO = sac
-%fileformat = miniseed
+% fileformatO = sac
+% fileformat0 = miniseed
 
 % The date format used in the filename, default is 'yyyy-mm-dd'
 dateformatO = yyyy.mm.dd
