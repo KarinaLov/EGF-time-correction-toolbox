@@ -1,11 +1,13 @@
 
+addpath('../EFG_github_flixha/EGF-time-correction-toolbox/EGF_tc_toolbox/')
+
 settingsfile='settingsfile.txt';
 
 % ESTIMATE THE GREEN'S FUNCTION:
-%egfs = estimate_GF(settingsfile);
+egfs = estimate_GF(settingsfile);
 
 % MEASURE THE TIME SHIFT
-delays = measure_timeshift(settingsfile);
+% delays = measure_timeshift(settingsfile);
 
 % PLOT DAILY CROSS CORRELATION AND TIME SHIFTS
 h = plot_egf_td(settingsfile);
@@ -22,7 +24,7 @@ h = apply_filterband(settingsfile,'stack');
 h = apply_filterband(settingsfile,'daily');
 
 % Give the drift on a specified date:
-dato = {'2017-07-01'}
+dato = {'2018-12-01'}
 [tdd tddc dayn]= date_spesific('settingsfile.txt',char(dato));
 
 % Corrcet for measured time shift:
