@@ -89,7 +89,7 @@ for jj=1:nost-1
             pair = [stationA '-' stationB '-' channel];
 
             filename1=['Egf_' pair '_' dates1 '.mat'];
-            if exist(filename1,'file') % Check that the file exists
+            if java.io.File(filename).exists  % Check that the file exists                
                 file1=load(filename1);
                 EGF=file1.estimatedGF.EGF(fdi:ldi,:);
                 lag=file1.estimatedGF.lag;
@@ -102,7 +102,7 @@ for jj=1:nost-1
             end
 
             filename2=['TD_' pair '_' dates2 '.mat'];
-            if exist(filename2,'file') % Check that the file exists
+            if java.io.File(filename2).exists  % Check that the file exists                
                 file2 = load(filename2);
                 timedelay = file2.timedelay.timedelay;
                 timedelay0 = file2.timedelay.timedelay0;

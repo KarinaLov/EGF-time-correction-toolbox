@@ -47,7 +47,7 @@ for d = 1:num_days
 
     Warning_msg = {[]};
 
-    if exist(filename,'file') % Check that the file exists
+    if java.io.File(filename).exists  % Check that the file exists        
         fe = 0;
         if strcmp(fileformat,'sac')
             % Retrieve a sac file
