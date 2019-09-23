@@ -92,7 +92,7 @@ parfor d = 1:num_days
                     (0:Count)/Fq);
                 time_vector = datenum(time_vector_str');
                 warning('The time vector is empty');
-                Warning_msg = ['The time vector is empty'];
+                Warning_msg = 'The time vector is empty';
 
             else
                 time_vector = time_vector0(:,1); % Time vector
@@ -163,7 +163,7 @@ parfor d = 1:num_days
                         datenum(datetime(datestr(time_vector1(1),...
                         'yyyy-mm-dd HH:MM:SS.FFF'),'InputFormat',...
                         'yyyy-MM-dd HH:mm:ss.SSS') + milliseconds(0:Count1*nq))'];
-                    time_vector1 = downsample(newtime1,nq);
+                    % time_vector1 = downsample(newtime1,nq);
                 end
                 Count = length(data);        
             end
@@ -171,7 +171,7 @@ parfor d = 1:num_days
             % Check if downsampling
             if ~isempty(deci)
                 % Downsample the input file:
-                data1 = decimate(data,deci);
+                data = decimate(data,deci);
                 time_vector = decimate(time_vector,deci);
                 Count = length(data);
                 sps = sps/deci;
