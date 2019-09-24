@@ -13,13 +13,14 @@
 %               rdsac.m (https://se.mathworks.com/matlabcentral/fileexchange/46356-rdsac-and-mksac-read-and-write-sac-seismic-data-file)
 
 %
-% Written by Karina Løviknes 
+% Written by Karina L??viknes 
 % 
 
 % Default values from settings file:
 [network,stations,first_day,last_day,channels,location,num_stat_cc,Fq,...
     fileName,fileformat,pz_file,dateformat,deci,missingfiles,bpf,norm,wl,...
-    swl,perco,filenameO,fileformatO,dateformatO,datesm] = read_settings(settingsfile,'CORRECT');
+    swl,perco,filenameO,fileformatO,dateformatO,datesm] = read_settings(...
+    settingsfile,'CORRECT');
 
 validateattributes(stations,{'cell'},{'nonempty'});
 nost=length(stations);
@@ -50,14 +51,14 @@ for jj = 1:nost
     % Extract measured time delays from file
     filename1 = ['FTD_' stationN '_' dates1 '.mat'];
     filename2 = ['FTD_' stationN '_' dates2 '.mat'];
-    if exist(filename1,'file') % Check that the file exists
+    if java.io.File(filename1).exists  % Check that the file exists        
         filename1
         file = load(filename1);
         timedelay = file.timedelayF.timedelay;
         timedelayC = file.timedelayF.timedelayC;
         num_corr = length(timedelay);  
     
-    elseif exist(filename2,'file') % Check that the file exists
+    elseif java.io.File(filename2).exists  % Check that the file exists        
         filename2
         file = load(filename2);
         timedelay = file.timedelayF.timedelay;
@@ -65,12 +66,16 @@ for jj = 1:nost
         num_corr = length(timedelay); 
         datevector = datevector2;
     else
-        error(['Cannot find a mat.file with an estimated greens function for stationpair ' stationN '. Fileformat must be: FTD_' stationN '_' dates2 '.mat' ])
+        error(['Cannot find a mat.file with an estimated greens ',...
+            'function for stationpair ' stationN '. Fileformat must ',...
+            'be: FTD_' stationN '_' dates2 '.mat' ])
     end
     num_days = length(datevector); % Number of days
     
      % Extract the data from all the daily files of station B
-    [daily dinfo] = read_daily(network,station,channel,location,datevector,fileName,fileformat,dateformat,Fq,deci,missingfiles);
+    [daily dinfo] = read_daily(network, station, channel, location,...
+        datevector, fileName, fileformat, dateformat, Fq, deci,...
+        missingfiles);
     
     starttime = dinfo.Starttime;
     starttime = datestr(starttime);
@@ -105,24 +110,37 @@ for jj = 1:nost
 
                 if strcmp(fileformatO,'sac')
                     % Create a corrected sac file
-                    Header=struct('DELTA',1/Fq,'B',0,'KSTNM',station,'KHOLE',00,'KCMPNM',channel(ch),'KNETWK',network,'NZDTTM',datevec(starttime));
-                    sacname = str2filename(filenameO,station,dateformatO,'network',network,'channels',channels,'location',location,'datevector',datetime(starttime))
+                    Header = struct('DELTA',1/Fq,'B',0,'KSTNM',...
+                        station, 'KHOLE', 00, 'KCMPNM', channel(ch),...
+                        'KNETWK', network, 'NZDTTM', datevec(starttime));
+                    sacname = str2filename(filenameO, station, dateformatO,...
+                        'network', network, 'channels', channels,...
+                        'location', location,'datevector',...
+                        datetime(starttime))
                     mksac(sacname,shift2,datenum(starttime),Header);
 
                 elseif strcmp(fileformatO,'miniseed')
                     % Create a corrected miniseed file
 
-                    mseedname = [network '.' station '.00.HH' channel(ch) '.D'];
+                    mseedname = [network '.' station '.00.HH' channel(...
+                        ch) '.D'];
                     mkmseed(mseedname,shift2,datenum(starttime),Fq);
 
                     % Change the filename of the outputname spesified in the settingsfile: 
-                    mseedname1 = [network '.' station '.00.HH' channel(ch) '.' char(datetime(datestr(starttime),'Format','yyyy')) '.' char(datetime(starttime,'Format','DDD'))];
-                    mseedname2 = str2filename(filenameO,station,dateformatO,'network',network,'channels',channels,'location',location,'datevector',datetime(starttime))
+                    mseedname1 = [network '.' station '.00.HH',...
+                        channel(ch) '.' char(datetime(datestr(starttime),...
+                        'Format','yyyy')) '.' char(datetime(starttime,...
+                        'Format','DDD'))];
+                    mseedname2 = str2filename(filenameO, station,...
+                        dateformatO, 'network', network,...
+                        'channels', channels, 'location', location,...
+                        'datevector', datetime(starttime))
                     movefile(mseedname1,mseedname2);
                 end
             end  
         end
-    corrected_stat(jj) = struct('Corrected',corrected,'Name',stationN,'Dates',dates2);   
+    corrected_stat(jj) = struct('Corrected', corrected, 'Name', stationN,...
+        'Dates',dates2);   
 end
 end
 %end

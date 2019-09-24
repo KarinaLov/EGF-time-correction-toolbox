@@ -18,13 +18,15 @@ function h = apply_filterband(settingsfile,specification)
 %
 % Sub-function: read_settings.m
 %
-% Written by Karina Løviknes 
+% Written by Karina L??viknes 
 %
 
 ord = 4; % Filter order, default
 
 % Default values from settings file
-[network,stations,first_day,last_day,channels,location,num_stat_cc,Fq,xaxis,lag_red,fc1,fc2,datesm,titl] = read_settings(settingsfile,'FILTER');
+[network, stations, first_day, last_day, channels, location, num_stat_cc,...
+    Fq, xaxis, lag_red, fc1, fc2, datesm, titl] = read_settings(...
+    settingsfile, 'FILTER');
 
 validateattributes(stations,{'cell'},{'nonempty'});
 nost = length(stations);
@@ -55,174 +57,183 @@ sp = 0; % Count the station pairs
 ii = 0;
 for ch = 1:nch
     channel = channels(ch);
-for jj=1:nost   
-    stationA = char(stations(jj));    
+    for jj=1:nost   
+        stationA = char(stations(jj));    
 
-for kk = 1:num_stat_cc-(jj-1)
-    sp = sp+1; % Count the station pairs
-    
-    stationB = char(stations(jj+kk));
+        for kk = 1:num_stat_cc-(jj-1)
+            sp = sp+1; % Count the station pairs
 
-    pair = [stationA '-' stationB '-' channel];
-    
-    filename1 = ['Egf_' pair '_' dates1 '.mat'];
-    if exist(filename1,'file') % Check that the file exists
-        file1 = load(filename1);
-        EGF = file1.estimatedGF.EGF(fdi:ldi,:);
-        lag = file1.estimatedGF.lag;
-        num_corr = length(EGF(:,1));
-    else
-        error(['Cannot find a mat.file with an estimated greens function for stationpair ' pair '. Fileformat must be: egf_' pair '_' datesm '.mat' ])
-    end
+            stationB = char(stations(jj+kk));
 
-    % Reduce computional effort by only using +-lag_red time lag
-    zerolag = find(lag==0);
-    egf = EGF(:,zerolag-lag_red:zerolag+lag_red);
-    cl = lag(zerolag-lag_red:zerolag+lag_red);
-    lcc = length(egf(1,:));
+            pair = [stationA '-' stationB '-' channel];
 
-    dd1 = [1 num_corr]; % The days to be plotted
-    cld = [cl(1)/Fq:1/Fq:cl(end)/Fq]; % I divide lag with Fq to plot the ccs in s
-    
-     if strcmp(specification,'ref')
-        filename2=['TD_' pair '_' dates2 '.mat']; 
-        if exist(filename2,'file') % Check that the file exists
-            file2 = load(filename2);
-            ref = file2.timedelay.reference;
-        else
-            warning(['Cannot find a mat.file with an estimated greens function for stationpair ' pair '. Fileformat must be: TD_' pair '_' datesm '.mat' ])
-        end
-        
-        tit = [pair ' - unfiltered'];
-        if strcmp(titl,'alphabet')
-            tit = alph(1);
-        end
-
-        filt = zeros(nfc,length(ref));    
-        h=figure;
-        subplot(nfc,1,1)
-        plot(cld,ref)
-        xlim(xaxis)
-        title(tit,'FontSize', 12)
-        hold on 
-        for ll=2:nfc
-
-            % Design the filter defined by the input cutoff frquencies:
-            df = designfilt('bandpassiir','FilterOrder',ord, ...
-            'HalfPowerFrequency1',fc1(ll),'HalfPowerFrequency2',fc2(ll), ...
-            'SampleRate',Fq,'DesignMethod','butter');
-
-            % filtfilt filters the signal in both directions
-            filt(ll,:) = filtfilt(df,ref);
-                   
-            tit = [pair ' - filter: ' num2str(fc1(ll)) '-' num2str(fc2(ll))  ' Hz'];
-            if strcmp(titl,'alphabet')
-                tit = alph(ll);
+            filename1 = ['Egf_' pair '_' dates1 '.mat'];
+            if java.io.File(filename1).exists  % Check that the file exists        
+                file1 = load(filename1);
+                EGF = file1.estimatedGF.EGF(fdi:ldi,:);
+                lag = file1.estimatedGF.lag;
+                num_corr = length(EGF(:,1));
+            else
+                error(['Cannot find a mat.file with an estimated greens ',...
+                    'function for stationpair ' pair '. Fileformat must be: ',...
+                    'egf_' pair '_' datesm '.mat' ])
             end
 
-            subplot(nfc,1,ll)
-            plot(cld,filt(ll,:))
-            xlim(xaxis)
-            title(tit,'FontSize', 12)
-            hold on 
-        end
-        hold off
-        
-     elseif strcmp(specification,'stack')
+            % Reduce computional effort by only using +-lag_red time lag
+            zerolag = find(lag==0);
+            egf = EGF(:,zerolag-lag_red:zerolag+lag_red);
+            cl = lag(zerolag-lag_red:zerolag+lag_red);
+            lcc = length(egf(1,:));
 
-        ref=sum(egf);
-        filt = zeros(nfc,length(ref));    
-        h=figure;
-        for ll=1:nfc
+            dd1 = [1 num_corr]; % The days to be plotted
+            cld = [cl(1)/Fq:1/Fq:cl(end)/Fq]; % I divide lag with Fq to plot the ccs in s
 
-            % Design the filter defined by the input cutoff frquencies:
-            df = designfilt('bandpassiir','FilterOrder',ord, ...
-            'HalfPowerFrequency1',fc1(ll),'HalfPowerFrequency2',fc2(ll), ...
-            'SampleRate',Fq,'DesignMethod','butter');
+             if strcmp(specification,'ref')
+                filename2=['TD_' pair '_' dates2 '.mat']; 
+                if java.io.File(filename2).exists  % Check that the file exists            
+                    file2 = load(filename2);
+                    ref = file2.timedelay.reference;
+                else
+                    warning(['Cannot find a mat.file with an estimated greens ',...
+                        'function for stationpair ' pair '. Fileformat must ',...
+                        'be: TD_' pair '_' datesm '.mat' ])
+                end
 
-            % filtfilt filters the signal in both directions
-            filt(ll,:) = filtfilt(df,ref);
-            
-            tit = [pair ' - filter: ' num2str(fc1(ll)) '-' num2str(fc2(ll))  ' Hz'];
-            if strcmp(titl,'alphabet')
-                tit = alph(ll);
-            end
+                tit = [pair ' - unfiltered'];
+                if strcmp(titl,'alphabet')
+                    tit = alph(1);
+                end
 
-            subplot(nfc,1,ll)
-            plot(cld,filt(ll,:))
-            xlim(xaxis)
-            title(tit,'FontSize', 12)
-            hold on 
-        end
-        hold off
-    
-    elseif strcmp(specification,'daily')        
-        % Preallocate for speed:
-        egff = zeros(num_corr,lcc);
-        egfn = zeros(num_corr,lcc);
+                filt = zeros(nfc,length(ref));    
+                h=figure;
+                subplot(nfc,1,1)
+                plot(cld,ref)
+                xlim(xaxis)
+                title(tit,'FontSize', 12)
+                hold on 
+                for ll=2:nfc
 
-        for d=1:num_corr
-        % Filter and normalize the daily cross correlations:
-            egfn(d,:) = egf(d,:)/max(abs(egf(d,:)));
-        end
-        
-        tit = [pair ' - unfiltered'];
-        if strcmp(titl,'alphabet')
-            tit = alph(1);
-        end
-            
-        h = figure;
-        subplot(1,nfc,1)
-        imagesc(cld,dd1,egfn)
-        title(tit,'FontSize', 12)
-        axis([xaxis 1 num_corr])
-        xlabel('Time (s)','FontSize', 14), ylabel('Days','FontSize', 14)         
-        level = 50; 
-        n = ceil(level/2);
-        cmap1 = [linspace(1,1,n); linspace(0,1,n); linspace(0,1,n)]';
-        cmap2 = [linspace(1,0,n); linspace(1,0,n); linspace(1,1,n)]';
-        cmap = [cmap1; cmap2(2:end,:)];
-        colormap(cmap);
-        hold on
-        for ll=2:nfc
-        % Design the filter using the given cutoff frquencies and designfilt
-        dfpll = designfilt('bandpassiir','FilterOrder',4, ...
-            'HalfPowerFrequency1',fc1(ll),'HalfPowerFrequency2',fc2(ll), ...
-            'SampleRate',Fq,'DesignMethod','butter');
-        
-            tit = [pair ' - filter: ' num2str(fc1(ll)) '-' num2str(fc2(ll))  ' Hz'];
-            if strcmp(titl,'alphabet')
-                tit = alph(ll);
-            end
+                    % Design the filter defined by the input cutoff frquencies:
+                    df = designfilt('bandpassiir', 'FilterOrder', ord, ...
+                    'HalfPowerFrequency1',fc1(ll),'HalfPowerFrequency2',...
+                    fc2(ll), 'SampleRate', Fq, 'DesignMethod', 'butter');
 
-            for d=1:num_corr
+                    % filtfilt filters the signal in both directions
+                    filt(ll,:) = filtfilt(df,ref);
+
+                    tit = [pair ' - filter: ' num2str(fc1(ll)) '-'...
+                        num2str(fc2(ll))  ' Hz'];
+                    if strcmp(titl,'alphabet')
+                        tit = alph(ll);
+                    end
+
+                    subplot(nfc,1,ll)
+                    plot(cld,filt(ll,:))
+                    xlim(xaxis)
+                    title(tit,'FontSize', 12)
+                    hold on 
+                end
+                hold off
+
+             elseif strcmp(specification,'stack')
+
+                ref=sum(egf);
+                filt = zeros(nfc,length(ref));    
+                h=figure;
+                for ll=1:nfc
+
+                    % Design the filter defined by the input cutoff frquencies:
+                    df = designfilt('bandpassiir','FilterOrder', ord,...
+                    'HalfPowerFrequency1', fc1(ll), 'HalfPowerFrequency2',...
+                    fc2(ll), 'SampleRate', Fq, 'DesignMethod','butter');
+
+                    % filtfilt filters the signal in both directions
+                    filt(ll,:) = filtfilt(df,ref);
+
+                    tit = [pair ' - filter: ' num2str(fc1(ll)) '-'...
+                        num2str(fc2(ll))  ' Hz'];
+                    if strcmp(titl,'alphabet')
+                        tit = alph(ll);
+                    end
+
+                    subplot(nfc,1,ll)
+                    plot(cld,filt(ll,:))
+                    xlim(xaxis)
+                    title(tit,'FontSize', 12)
+                    hold on 
+                end
+                hold off
+
+            elseif strcmp(specification,'daily')        
+                % Preallocate for speed:
+                egff = zeros(num_corr,lcc);
+                egfn = zeros(num_corr,lcc);
+
+                for d=1:num_corr
                 % Filter and normalize the daily cross correlations:
-                egff(d,:) = filtfilt(dfpll,egf(d,:));
-                egfn(d,:) = egff(d,:)/max(abs(egff(d,:)));
+                    egfn(d,:) = egf(d,:)/max(abs(egf(d,:)));
+                end
+
+                tit = [pair ' - unfiltered'];
+                if strcmp(titl,'alphabet')
+                    tit = alph(1);
+                end
+
+                h = figure;
+                subplot(1,nfc,1)
+                imagesc(cld,dd1,egfn)
+                title(tit,'FontSize', 12)
+                axis([xaxis 1 num_corr])
+                xlabel('Time (s)','FontSize', 14), ylabel('Days',...
+                    'FontSize', 14)         
+                level = 50; 
+                n = ceil(level/2);
+                cmap1 = [linspace(1,1,n); linspace(0,1,n); linspace(0,1,n)]';
+                cmap2 = [linspace(1,0,n); linspace(1,0,n); linspace(1,1,n)]';
+                cmap = [cmap1; cmap2(2:end,:)];
+                colormap(cmap);
+                hold on
+                for ll=2:nfc
+                % Design the filter using the given cutoff frquencies and designfilt
+                dfpll = designfilt('bandpassiir','FilterOrder',4, ...
+                    'HalfPowerFrequency1', fc1(ll), 'HalfPowerFrequency2',...
+                    fc2(ll), 'SampleRate', Fq, 'DesignMethod', 'butter');
+
+                    tit = [pair ' - filter: ' num2str(fc1(ll)) '-'...
+                        num2str(fc2(ll))  ' Hz'];
+                    if strcmp(titl,'alphabet')
+                        tit = alph(ll);
+                    end
+
+                    for d=1:num_corr
+                        % Filter and normalize the daily cross correlations:
+                        egff(d,:) = filtfilt(dfpll,egf(d,:));
+                        egfn(d,:) = egff(d,:)/max(abs(egff(d,:)));
+                    end
+
+                    subplot(1,nfc,ll)
+                    imagesc(cld,dd1,egfn)
+                    title(tit,'FontSize', 12)
+                    axis([xaxis 1 num_corr])
+                    xlabel('Time (s)','FontSize', 14), ylabel('Days',...
+                        'FontSize', 14)         
+                    level = 50; 
+                    n = ceil(level/2);
+                    cmap1 = [linspace(1,1,n); linspace(0,1,n); linspace(0,1,n)]';
+                    cmap2 = [linspace(1,0,n); linspace(1,0,n); linspace(1,1,n)]';
+                    cmap = [cmap1; cmap2(2:end,:)];
+                    colormap(cmap);
+                    hold on
+                end
+                hold off
             end
-            
-            subplot(1,nfc,ll)
-            imagesc(cld,dd1,egfn)
-            title(tit,'FontSize', 12)
-            axis([xaxis 1 num_corr])
-            xlabel('Time (s)','FontSize', 14), ylabel('Days','FontSize', 14)         
-            level = 50; 
-            n = ceil(level/2);
-            cmap1 = [linspace(1,1,n); linspace(0,1,n); linspace(0,1,n)]';
-            cmap2 = [linspace(1,0,n); linspace(1,0,n); linspace(1,1,n)]';
-            cmap = [cmap1; cmap2(2:end,:)];
-            colormap(cmap);
-            hold on
         end
-        hold off
+        % Make sure the stations are cross correlted with the rigth number of stations: 
+        if ii >= num_stat_cc
+            ii = 0; 
+        else
+            ii = ii + 1;
+        end
     end
-end
-% Make sure the stations are cross correlted with the rigth number of stations: 
-if ii >= num_stat_cc
-    ii = 0; 
-else
-    ii = ii + 1;
-end
-end
 end
 end
