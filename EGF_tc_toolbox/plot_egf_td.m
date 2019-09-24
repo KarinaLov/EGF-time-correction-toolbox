@@ -88,11 +88,11 @@ for jj=1:nost-1
 
             pair = [stationA '-' stationB '-' channel];
 
-            filename1=['Egf_' pair '_' dates1 '.mat'];
-            if java.io.File(filename).exists  % Check that the file exists                
-                file1=load(filename1);
-                EGF=file1.estimatedGF.EGF(fdi:ldi,:);
-                lag=file1.estimatedGF.lag;
+            filename1 = ['Egf_' pair '_' dates1 '.mat'];
+            if java.io.File(filename1).exists  % Check that the file exists                
+                file1 = load(filename1);
+                EGF = file1.estimatedGF.EGF(fdi:ldi,:);
+                lag = file1.estimatedGF.lag;
                 %num_days = file1.estimatedGF.number_of_days;
                 num_corr = length(EGF(:,1));
             else
