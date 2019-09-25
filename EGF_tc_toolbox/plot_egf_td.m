@@ -45,7 +45,7 @@ else
     datevector2 = [fd2:ld2];
 end
 num_days=length(datevector2); % Number of days
-nsp = ceil(nch*nost*num_stat_cc/2); % Number of station pair 
+nsp = ceil(nch*nost*num_stat_cc/2; % Number of station pair 
 
 h1=1;
 if ~isempty(varargin) && strncmp(varargin{1},'all',3) 
@@ -159,7 +159,7 @@ for jj=1:nost-1
                 cmap = [cmap1; cmap2(2:end,:)];
                 colormap(cmap);
                 if strcmp(titl,'alphabet')
-                    title([alph(1), ' ', pair],'FontSize', 15)
+                    title(alph(1),'FontSize', 15)
                 else
                     title(['Cross correlations of ' pair ' between ',...
                         dates2 ],'FontSize', 15)
@@ -208,7 +208,7 @@ for jj=1:nost-1
                 cmap = [cmap1; cmap2(2:end,:)];
                 colormap(cmap);
                 if strcmp(titl,'alphabet')
-                    title([alph(1), ' ', pair],'FontSize', 15)
+                    title(alph(1),'FontSize', 15)
                 else
                     title(['Cross correlations of ' pair ' between ',...
                         dates2 ],'FontSize', 15)
@@ -270,7 +270,7 @@ for jj=1:nost-1
                 plot(cld,ref)
                 xlim(xaxis)       
                 if strcmp(titl,'alphabet')
-                    title([alph(1), ' ', pair],'FontSize', 15)
+                    title(alph(1),'FontSize', 15)
                 else
                    title(['Corrected reference trace used to measure ',...
                        'timedelays'],'FontSize', 15) 
