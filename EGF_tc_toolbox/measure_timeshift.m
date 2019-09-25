@@ -126,7 +126,7 @@ for ch = 1:nch
                 type = []; 
 
                 k = 0; % Count the days
-                parfor j=1:numref
+                for j=1:numref
 
                     % If specified, filter the reference
                     if ~isempty(bpf)

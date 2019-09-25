@@ -301,6 +301,8 @@ for jj=1:nost-1
                 axis([0 Fq/2 1 num_days])
                 % Set the colorbar to red-white-blue:
                 colorbar
+                xlabel('Frequency (Hz)', 'FontSize', 16)
+                ylabel('Days', 'FontSize', 16)
 
             elseif strcmp(varargin{1},'Daily')
                 % Plot the daily Green's function as signals not amplitude 
