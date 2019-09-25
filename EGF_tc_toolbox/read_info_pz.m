@@ -28,82 +28,89 @@ while (line ~= -1)
         txt=txtcell{1};
 
         if length(txt) > 1
-            var_name=txt{1};
-            var=txt{2};
+            var_name = txt{1};
+            var = txt{2};
         
-            if strcmp(var_name,'* NETWORK   (KNETWK)')
+            if strcmpi(var_name,'* NETWORK   (KNETWK)')
                 network = var;
                     
-            elseif strcmp(var_name,'* STATION    (KSTNM)')
+            elseif strcmpi(var_name,'* STATION    (KSTNM)')
                 station = var;
                     
-            elseif strcmp(var_name,'* LOCATION   (KHOLE)')
+            elseif strcmpi(var_name,'* LOCATION   (KHOLE)')
                 location = var;
                     
-            elseif strcmp(var_name,'* CHANNEL   (KCMPNM)')
+            elseif strcmpi(var_name,'* CHANNEL   (KCMPNM)')
                 channel = var;
                     
-            elseif strcmp(var_name,'* CREATED           ')
+            elseif strcmpi(var_name,'* CREATED           ')
                 var = [txt{2:end}];
                 created = var;
                     
-            elseif strcmp(var_name,'* START             ')
+            elseif strcmpi(var_name,'* START             ')
                 var = [txt{2:end}];
                 starttime = var;
                     
-            elseif strcmp(var_name,'* END               ')
+            elseif strcmpi(var_name,'* END               ')
                 var = [txt{2:end}];
                 endtime = var;
                     
-            elseif strcmp(var_name,'* DESCRIPTION       ')
+            elseif strcmpi(var_name,'* DESCRIPTION       ')
                 created = var;
                             
-            elseif strcmp(var_name, '* LATITUDE    (deg) ')
+            elseif strcmpi(var_name, '* LATITUDE    (deg) ') ||...
+                    strcmp(var_name, '* Latitude          ')
                 latitude = str2num(var);
                     
-            elseif strcmp(var_name,'* LONGITUDE   (deg) ')
+            elseif strcmpi(var_name, '* LONGITUDE   (deg) ') ||...
+                    strcmp(var_name, '* Longitude         ')
                 longitude = str2num(var);
                     
-            elseif strcmp(var_name,'* ELEVATION     (m) ')
+            elseif strcmpi(var_name,'* ELEVATION     (m) ') ||...
+                    strcmp(var_name,'* Elevation         ') 
                 elevation = str2num(var);
                     
-            elseif strcmp(var_name,'* DEPTH         (m) ')
+            elseif strcmpi(var_name,'* DEPTH         (m) ') ||...
+                    strcmp(var_name,'* Depth             ') 
                 depth = str2num(var);
                     
-            elseif strcmp(var_name,'* DIP         (deg) ')
+            elseif strcmpi(var_name,'* DIP         (deg) ') ||...
+                    strcmp(var_name,'* Dip               ')
                 dip = str2num(var);
                     
-            elseif strcmp(var_name,'* AZIMUTH     (deg) ')
+            elseif strcmpi(var_name,'* AZIMUTH     (deg) ') ||...
+                    strcmp(var_name,'* Azimuth           ')
                 azimuth = str2num(var);
                     
-            elseif strcmp(var_name,'* SAMPLE RATE  (Hz) ')
+            elseif strcmpi(var_name,'* SAMPLE RATE  (Hz) ') ||...
+                    strcmp(var_name,'* SAMPLE RATE       ')
                 samplerate = str2num(var);
                     
-            elseif strcmp(var_name,'* INPUT UNIT        ')
+            elseif strcmpi(var_name,'* INPUT UNIT        ')
                 input_units = var;
                     
-            elseif strcmp(var_name,'* OUTPUT UNIT       ')
+            elseif strcmpi(var_name,'* OUTPUT UNIT       ')
                 output_units = var;
                     
-            elseif strcmp(var_name,'* INSTTYPE          ')
+            elseif strcmpi(var_name,'* INSTTYPE          ')
                 insttype = var;
                     
-            elseif strcmp(var_name,'* INSTGAIN          ')
+            elseif strcmpi(var_name,'* INSTGAIN          ')
                 instgain = var;
                     
-            elseif strcmp(var_name,'* COMMENT           ')
+            elseif strcmpi(var_name,'* COMMENT           ')
                 comment = var;
                     
-            elseif strcmp(var_name,'* SENSITIVITY       ')
+            elseif strcmpi(var_name,'* SENSITIVITY       ')
                 sensitivity = str2num(var);
                     
-            elseif strcmp(var_name,'* A0                ')
+            elseif strcmpi(var_name,'* A0                ')
                 AO = str2num(var);
                     
-            elseif strcmp(var_name,'* Site Name         ')
+            elseif strcmpi(var_name,'* Site Name         ')
                 site_name = var;
                     
-            elseif strcmp(var_name,'* Owner             ')
+            elseif strcmpi(var_name,'* Owner             ')
                 owner = var;
             end
         elseif length(txt)==1
@@ -111,7 +118,7 @@ while (line ~= -1)
             var_name = txt2{1};
             var = txt2{2};
             
-        if strcmp(var_name,'ZEROS')
+        if strcmpi(var_name,'ZEROS')
                 num_zeros = str2double(var);
                 zzs = zeros(1,num_zeros);
                 pos01 = ftell(pz_fid);
@@ -135,7 +142,7 @@ while (line ~= -1)
                          k = num_zeros+1;                        
                     end
                 end
-            elseif strcmp(var_name,'POLES')                                
+            elseif strcmpi(var_name,'POLES')                                
                 num_poles = str2double(var);
                 pps = zeros(1,num_zeros);
                 k = 1;
@@ -161,16 +168,16 @@ while (line ~= -1)
     end
 end
 
-if strcmp(varargin{1},'PZ')
+if strcmpi(varargin{1},'PZ')
     varargout{1} = pps;
     varargout{2} = zzs;
     varargout{3} = constant;
     
-elseif strcmp(varargin{1},'Coordinates')
+elseif strcmpi(varargin{1},'Coordinates')
     varargout{1} = latitude;
     varargout{2} = longitude;
         
-elseif strcmp(varargin{1},'Station')
+elseif strcmpi(varargin{1},'Station')
     varargout{1} = network;
     varargout{2} = station;
     varargout{3} = location;

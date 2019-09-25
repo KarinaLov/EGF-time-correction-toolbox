@@ -119,14 +119,14 @@ for ch = 1:nch
             delay_neg = zeros(1,num_corr);
 
             for it=1:iterations
-                % Calculate refernce traces based on specification:
-                [ref,numref]=make_reference(dayshift,stackp,stackdays);
+                % Calculate reference traces based on specification:
+                [ref, numref] = make_reference(dayshift, stackp,stackdays);
                 % Empty vector for specifying how the time delay is
                 % measured
                 type = []; 
 
                 k = 0; % Count the days
-                for j=1:numref
+                parfor j=1:numref
 
                     % If specified, filter the reference
                     if ~isempty(bpf)
