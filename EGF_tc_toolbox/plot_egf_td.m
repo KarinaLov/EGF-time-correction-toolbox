@@ -45,7 +45,7 @@ else
     datevector2 = [fd2:ld2];
 end
 num_days=length(datevector2); % Number of days
-nsp = ceil(nch*nost*num_stat_cc/2; % Number of station pair 
+nsp = ceil(nch*nost*num_stat_cc/2); % Number of station pair 
 
 h1=1;
 if ~isempty(varargin) && strncmp(varargin{1},'all',3) 
