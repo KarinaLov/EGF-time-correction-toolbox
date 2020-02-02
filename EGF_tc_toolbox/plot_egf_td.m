@@ -45,7 +45,7 @@ else
     datevector2 = [fd2:ld2];
 end
 num_days=length(datevector2); % Number of days
-nsp = nch*nost*num_stat_cc/2; % Number of station pair 
+nsp = ceil(nch*nost*num_stat_cc/2); % Number of station pair 
 
 h1=1;
 if ~isempty(varargin) && strncmp(varargin{1},'all',3) 
@@ -301,6 +301,8 @@ for jj=1:nost-1
                 axis([0 Fq/2 1 num_days])
                 % Set the colorbar to red-white-blue:
                 colorbar
+                xlabel('Frequency (Hz)', 'FontSize', 16)
+                ylabel('Days', 'FontSize', 16)
 
             elseif strcmp(varargin{1},'Daily')
                 % Plot the daily Green's function as signals not amplitude 
