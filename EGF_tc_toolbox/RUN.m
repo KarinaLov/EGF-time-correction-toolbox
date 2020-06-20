@@ -2,7 +2,7 @@
 settingsfile='settingsfile.txt';
 
 % ESTIMATE THE GREEN'S FUNCTION:
-%egfs = estimate_GF(settingsfile);
+egfs = estimate_GF(settingsfile);
 
 % MEASURE THE TIME SHIFT
 delays = measure_timeshift(settingsfile);
