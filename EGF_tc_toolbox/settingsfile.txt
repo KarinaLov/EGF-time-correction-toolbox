@@ -1,30 +1,24 @@
 %%% Settings file %%%
 
-% OBS03 OBS04 OBS05 OBS06 OBS11 OBS12
 %% Station and time period specifications (mandatory values):
 % Example stations:
-network = 2G
-network = 2G
-stations = BAS20 BAS22 BAS23
+network = 2D
+stations = NBB15 NBB14 N2ST N2TV
 channels = Z
 location = 00
-first_day = 2018-12-20
-last_day = 2018-12-22
+first_day = 2015-09-01
+last_day = 2015-11-16
 
 % Number of stations each station is cross correlated with, default is number of stations - 1
-num_stat_cc = 2
+num_stat_cc = 3
 
 % Sampling frequency (must be the same as the sampling frequency given in 
 % the file header)
-Fq = 100
+Fq = 10
 
 % The filename format, must include station name, date and folder (if in 
 % another folder), if not specified default is [network.stationname.location.HHchannels.D.yyyy.ddd.SAC]
-% filename = ../EGF_tc_toolbox/MOHN_ALL/stationname/network.stationname.(DATE).channels.mseed
-% filename = stationname/network.stationname.00.HHchannels.D.yyyy.ddd.000000.SAC
-filename = /Users/felix/SSHFS/seismonas/seismo/BASE2018-/archive/yyyy/network/stationname/HHchannels.D/network.stationname.location.HHchannels.D.yyyy.ddd
-% 2018/2G/BAS20/HHZ.D/2G.BAS20.00.HHZ.D.2018.234
-
+filename = stationname/network.stationname.location.HH.D.(DATE).mseed
 
 % Input file format, can be either sac (default) or miniseed
 %fileformat = sac
@@ -39,28 +33,29 @@ dateformat = yyyy.ddd
 % the Green's function
 % Pole-zero file format, if not specified the default format is 
 % [SAC_PZs_NS_stationname_HHchannels.pz]
-
-% pz_file = ../EGF_tc_toolbox/MOHN_ALL/PZ_stationname.pz
-pz_file = /Users/felix/Documents2/BASE/TimeCorrections/EGF_tc_toolbox_2/CAL/BASE/SAC_PZs_2G_stationname_HHZ.pz
-
+pz_file = stationname/SAC_PZs_NS_stationname_HHchannels.pz
 
 % Decimate factor, if no downsampling is needed leave out or blank
 % decimate = 
 
 % Tolerance number of missing files in row (default = 5)
-missingfiles = 15
+missingfiles = 5
 
-% Bandpass filter to be applied during preprocessing (mandatory value):
-bpf = [1 48]
+% Filter to be applied during preprocessing, specify the frequencies whether it is highpass or
+% bandpass (mandatory value):
+filter = bp [1 48]
 
-% Normalization specification, the options are 'onebit sw'  for onebit before spectral whitening (default), 'onebit' for only onebit normalization and 
+% Normalization specification, the options are 'onebit sw'  for onebit before spectral whitening (default), 
+% 'onebit' for only onebit normalization and 
 % 'sw' for spectral whitening before onebit
 norm = onebit sw
 
-% Cross correlation window length in hours, must be given as an integer between 1 and 24, the default is 24 hours
+% Cross correlation window length in hours, must be given as an integer between 1 and 24, 
+% the default is 24 hours
 wl = 1
 
-% Stack window length in hours, must be given as an integer between 1 and 24, the default is 24 hours
+% Stack window length in hours, must be given as an integer between 1 and 24, 
+% the default is 24 hours
 swl = 24
 
 % Cross correlation overlap window length in %, the default is 100%
@@ -68,10 +63,11 @@ perco = 50
 
 %% TD:
 % Specify the values for measuring time shifts
-%datesm = 2017-07-08 2018-02-01
+%datesm = 2015-09-01 2015-11-01
 
-% Bandpass filter to apply on the daily noise correlations and reference trace before measuring time delays, if not specified no filter will be applied
-%bpfm = [5 15]
+% Bandpass filter to apply on the daily noise correlations and reference trace 
+%before measuring time delays, if not specified no filter will be applied
+%filterm = bp [5 15]
 
 % Number of iterations to run the measuring process, must be an integer, 
 % default is 3
@@ -97,18 +93,21 @@ signalpart = whole
 % Only use signals with correlation coefficient above the specified 
 % threshold (if the stackperiod 'increase' is chosen, the threshold will 
 % increase by 0.2 during the second iteration):
-threshold = 0.2
+threshold = 0.4
 
 %% INVERT:
 % Specify values for inversion:
-% Specify whether the inversion should be perfomed on the directly measured time shifts ('direct') or the linearly fitted time shift ('linfit'):
-inv = linfit
+% Specify whether the inversion should be perfomed on the directly measured 
+% time shifts ('direct') or the linearly fitted time shift ('linfit'):
+%fit = linfit
 
-% Specification about the time period the measured time shifts should be linearly fitted, clear jumps should be omitted. Give as stationname (default is 'all' for all stations), the first day of the time period and the last (degault is the entire period):
-fitperiod = OBS11 5 150 OBS12 5 150
+% Specification about the time period the measured time shifts should be 
+% linearly fitted, clear jumps should be omitted. Give as stationname (default is
+% 'all' for all stations), the first day of the time period and the last (degault is the entire period):
+%fitperiod = NBB15 1 15 NBB14 5 15
 
 % Station with reliable clock to use as reference during the invertion
-reference_clock_station = LOF
+reference_clock_station = N2ST
 
 %% PLOT:
 % Specify the values for plotting:
@@ -118,24 +117,22 @@ yaxis = -4 4
 % Specify wheter the title should be the name of the plot ('name',default) or a letter (alphabet):
 titl = alphabet
 
-% Bandpass filter
-%bpfp = [10 25]
+% Filter
+%filterp = bp [10 25]
 
 %% FILTER
 % Specify values for applying different bandpass filters:
-cutoff_freq1 = [1 4 12 18 25];
-cutoff_freq2 = [48 12 25 34 48];
-%cutoff_freq1 = [0.25 0.2 1/7 0.1 0.05]
-%cutoff_freq2 = [1.25 1 0.5 0.2 0.1]
+cutoff_freq1 = [0.25 0.2 1/7 0.1 0.05]
+cutoff_freq2 = [1.25 1 0.5 0.2 0.1]
 
 %% CORRECT
-% The filename format of the corrected output, must include station name, date and folder (if in another folder), if not specified default is 
+% The filename format of the corrected output, must include station name, date and folder 
+% (if in another folder), if not specified default is 
 % [network.stationname.location.HHchannels.D.yyyy.ddd.SAC]
-%filename = stationname/network.stationname.location.HH.D.(DATE).mseed
 filenameO = stationname/network.stationname.00.HHchannels.D.yyyy.ddd.000000.SAC
 
 % Input file format, can be either sac (default) or miniseed
-% fileformatO = sac
+fileformatO = sac
 % fileformat0 = miniseed
 
 % The date format used in the filename, default is 'yyyy-mm-dd'

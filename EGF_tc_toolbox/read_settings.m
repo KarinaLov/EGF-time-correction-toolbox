@@ -108,9 +108,9 @@ vo=1; % Count the number of varargout variables
         % Number of missing files in a row tolerated
         vouts{6}=str2num(var);  
         
-    elseif strcmp(var_name, 'bpf ')
+    elseif strcmp(var_name, 'filter ')
         % Bandpass filter to apply during pre processing 
-        vouts{7}=str2num(var);  
+        vouts{7}=split(var);
 
     elseif strcmp(var_name, 'norm ')
         % Normalization during pre processing
@@ -132,9 +132,9 @@ vo=1; % Count the number of varargout variables
         % Bandpass filter to apply before measuring time errors
         datesm=split(var);
         
-    elseif strcmp(var_name, 'bpfm ')
+    elseif strcmp(var_name, 'filterm ')
         % Bandpass filter to apply before measuring time errors
-        bpfm=str2num(var); 
+        bpfm=split(var); 
 
     elseif strcmp(var_name, 'iterations ')
         % Number of iterations to run the measuring process
@@ -183,7 +183,7 @@ vo=1; % Count the number of varargout variables
         % PLot title
         titl=var;
         
-    elseif strcmp(var_name, 'bpfp ')
+    elseif strcmp(var_name, 'filterp ')
         % Bandpass filter before plot
         bpfp=str2num(var);
         
