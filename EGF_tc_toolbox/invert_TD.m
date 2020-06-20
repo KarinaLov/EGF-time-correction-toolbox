@@ -17,7 +17,8 @@ function [fdelay fdelayc] = invert_TD(settingsfile,varargin)
 %
 
 % Default values from settings file
-[network,stations,first_day,last_day,channels,location,num_stat_cc,Fq,swl,fit,fitperiod,RCS,yaxis,datesm] = read_settings(settingsfile,'INVERT');
+[network,stations,first_day,last_day,channels,location,num_stat_cc,Fq,...
+    fit,fitperiod,RCS,yaxis,datesm] = read_settings(settingsfile,'INVERT');
 
 validateattributes(stations,{'cell'},{'nonempty'});
 nost=length(stations);
@@ -112,13 +113,18 @@ G
 fdelay = pinv(G)*timeshift;
     
 % Correct to absolute time delay by removing the shift of the given reliable station:
-realm = find(strcmp(stations,cellstr(RCS)));
-if isempty(realm)
-    warning('A reliable station is not found, the relative time is not corrected for: fdelayc = fdelay')
+if isempty(RCS)
+    warning('A reliable station is not given, the relative time is not corrected for: fdelayc = fdelay')
     fdelayc = fdelay;
-else  
-    for i = 1:nost
-        fdelayc(i,:) = fdelay(i,:) - fdelay(realm,:);
+else
+    realm = find(strcmp(stations,cellstr(RCS)));
+    if isempty(realm)
+        warning('A reliable station is not found, the relative time is not corrected for: fdelayc = fdelay')
+        fdelayc = fdelay;
+    else  
+        for i = 1:nost
+            fdelayc(i,:) = fdelay(i,:) - fdelay(realm,:);
+        end
     end
 end
 
@@ -130,7 +136,7 @@ if strcmp(varargin,'plot')
         dd_fit = polyfit(dd1,fdelayc(ff,:),1);
         dd_fit_eval = polyval(dd_fit,dd1);
         
-        slope=((fdelayc(ff,end)-fdelayc(ff,1))/num_days)/Fq;
+        slope=dd_fit(1)/Fq;
 
         rsq = 1 - (sum((fdelayc(ff,:)-dd_fit_eval).^2))/((num_days-1)*var(fdelayc(ff,:)));
         std1 = std(fdelayc(ff,:))/Fq;
@@ -142,7 +148,10 @@ if strcmp(varargin,'plot')
         xlabel('days')
         hold on 
         
-        timedelayF = struct('timedelay',fdelay(ff,:),'timedelayC',fdelayc(ff,:),'pair',[char(stations(ff)) '-' channel],'number_of_days',num_days,'slope',slope,'Rsquared',rsq,'Standard_deviation',std1);
+        timedelayF = struct('timedelay',fdelay(ff,:),'timedelayC',...
+            fdelayc(ff,:),'pair',[char(stations(ff)) '-' channel],...
+            'number_of_days',num_days,'slope',slope,'Rsquared',rsq,...
+            'Standard_deviation',std1);
         save(['FTD_' char(stations(ff)) '-' channel '_' dates2 '.mat'],'timedelayF')
     end
     hold off 

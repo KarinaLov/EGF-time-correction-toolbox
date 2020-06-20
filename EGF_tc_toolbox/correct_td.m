@@ -1,4 +1,4 @@
-%function corrected_stat = correct_td(settingsfile)         
+function corrected_stat = correct_td(settingsfile)         
 % Correct for the measured time shift and creates new
 % corrected files
 %
@@ -24,8 +24,7 @@
 
 validateattributes(stations,{'cell'},{'nonempty'});
 nost=length(stations);
-nch = length(channels);
-nsp = nch*nost*num_stat_cc/2; % Number of station pair 
+nch = length(channels); 
 
 % Define the dates to run
 fd = datetime(first_day);
@@ -40,6 +39,7 @@ else
     ld2 = datetime(datesm(2));
     datevector2 = fd2:ld2;
 end
+num_days = length(datevector);
 
 for ch = 1:nch
     channel = channels(ch);
@@ -143,5 +143,5 @@ for jj = 1:nost
         'Dates',dates2);   
 end
 end
-%end
+end
 

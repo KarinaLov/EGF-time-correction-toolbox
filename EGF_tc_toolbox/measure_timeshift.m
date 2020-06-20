@@ -17,7 +17,7 @@ function delay = measure_timeshift(settingsfile)
 % Default values from settings file
 [network, stations, first_day, last_day, channels, location,...
     num_stat_cc, Fq, datesm, bpf, iterations, lag_red, stackperiod,...
-    signal_part, thr] = read_settings(settingsfile, 'TD');
+    signal_part, thr, fit, fitperiod] = read_settings(settingsfile, 'TD');
 
 validateattributes(stations,{'cell'},{'nonempty'});
 nost = length(stations);

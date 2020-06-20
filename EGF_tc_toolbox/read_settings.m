@@ -47,7 +47,7 @@ fc1 = {};
 fc2 = {};
 
 % Read the textfile into a table:
-txt = readtable(settingsfile,'Delimiter','=', 'CommentStyle',{'%'});
+txt = readtable(settingsfile,'Delimiter','=', 'CommentStyle',{'%'},'ReadVariableNames',false);
 
 szt=size(txt);
 nc=szt(1); % Number of columms
@@ -108,9 +108,9 @@ vo=1; % Count the number of varargout variables
         % Number of missing files in a row tolerated
         vouts{6}=str2num(var);  
         
-    elseif strcmp(var_name, 'filter ')
+    elseif strcmp(var_name, 'bpf ')
         % Bandpass filter to apply during pre processing 
-        vouts{7}=split(var);
+        vouts{7}=str2num(var); 
 
     elseif strcmp(var_name, 'norm ')
         % Normalization during pre processing
@@ -132,9 +132,9 @@ vo=1; % Count the number of varargout variables
         % Bandpass filter to apply before measuring time errors
         datesm=split(var);
         
-    elseif strcmp(var_name, 'filterm ')
+    elseif strcmp(var_name, 'bpfm ')
         % Bandpass filter to apply before measuring time errors
-        bpfm=split(var); 
+        bpfm=str2num(var); 
 
     elseif strcmp(var_name, 'iterations ')
         % Number of iterations to run the measuring process
@@ -183,7 +183,7 @@ vo=1; % Count the number of varargout variables
         % PLot title
         titl=var;
         
-    elseif strcmp(var_name, 'filterp ')
+    elseif strcmp(var_name, 'bpfp ')
         % Bandpass filter before plot
         bpfp=str2num(var);
         
@@ -241,16 +241,17 @@ elseif strcmp(varargin{1},'TD')
     varargout{5}=stackperiod;
     varargout{6}=signal_part;
     varargout{7}=thr;
-            
+    varargout{8}=fit;
+    varargout{9}=fitperiod;
+    
 elseif strcmp(varargin{1},'INVERT')
-    % Read the variables used to plot
-    varargout{1}=vouts{9}; % Stack window length
-    varargout{2}=fit;
-    varargout{3}=fitperiod;
-    varargout{4}=RCS;
-    varargout{5}=yaxis;
-    varargout{6}=datesm;
-    varargout{7}=titl;
+    % Read the variables used to invert
+    varargout{1}=fit;
+    varargout{2}=fitperiod;
+    varargout{3}=RCS;
+    varargout{4}=yaxis;
+    varargout{5}=datesm;
+    varargout{6}=titl;
     
 elseif strcmp(varargin{1},'PLOT')
     % Read the variables used to plot
@@ -262,7 +263,7 @@ elseif strcmp(varargin{1},'PLOT')
     varargout{6}=datesm;
     
 elseif strcmp(varargin{1},'FILTER')
-    % Read the variables used to plot
+    % Read the variables used to filter
     varargout{1}=xaxis;
     varargout{2}=lag_red;
     varargout{3}=fc1;
@@ -271,7 +272,7 @@ elseif strcmp(varargin{1},'FILTER')
     varargout{6}=titl;
  
 elseif strcmp(varargin{1},'DISTANCE')
-    % Read the variables used to plot
+    % Read the variables used to plot distance
     varargout{1}=xaxis;
     varargout{2}=vouts{3}; % pole zero file
     varargout{3}=vouts{3}; % Dateformat
