@@ -7,8 +7,15 @@ function [network, stations, first_day, last_day, channels, location,...
 %       varargin: spesfification about the type of values to read
 %               'EGF': values used to estimate the Green's funcion
 %               'TD': values used to measure the time shift
+%               'INVERT': values used to invert the time shift
 %               'PLOT': values used to plot the estimated Green's function
 %                       and/or time shifts
+%               'FILTER': values used to filter and plot the Green's
+%                       function
+%               'DISTANCE': values used to plot the Green's function with
+%                       distance
+%               'CORRECT': values used to correct the data for the measured
+%                       the time shift
 %
 % Output:
 %       Fq=sampling frequency
@@ -17,7 +24,7 @@ function [network, stations, first_day, last_day, channels, location,...
 %       num_stat_cc=Number of stations each station is cross correlated with
 %       varargout
 %
-% Written by Karina L??viknes 
+% Written by Karina Loviknes 
 % 
 
 % The optional variables are empty or default if not specified
@@ -54,156 +61,156 @@ nc=szt(1); % Number of columms
 
 vo=1; % Count the number of varargout variables
  for j=1:nc
-    var_name=char(txt{j,1});
-    var=char(txt{j,2});
+    var_name=char(txt{j,1})
+    var=char(txt{j,2})
     
     % Extract the variables:
-    if strcmp(var_name, 'network ')
-        network=var;
+    if strcmp(var_name, 'network')
+        network=var
     
-    elseif strcmp(var_name, 'stations ')
+    elseif strcmp(var_name, 'stations')
         stations=split(var);
     
-    elseif strcmp(var_name, 'first_day ')
+    elseif strcmp(var_name, 'first_day')
         first_day=var;
         
-    elseif strcmp(var_name, 'last_day ')
+    elseif strcmp(var_name, 'last_day')
         last_day=var;
         
-    elseif strcmp(var_name, 'channels ')
+    elseif strcmp(var_name, 'channels')
         channels=var;
          
-    elseif strcmp(var_name, 'location ')
+    elseif strcmp(var_name, 'location')
         location=var;
 
-    elseif strcmp(var_name, 'num_stat_cc ')
+    elseif strcmp(var_name, 'num_stat_cc')
         % Number of station each station is cross correlated with
         num_stat_cc=str2num(var);  
             
-    elseif strcmp(var_name, 'Fq ')
+    elseif strcmp(var_name, 'Fq')
         % Sampling rate
         Fq=str2num(var);
         
-    elseif strcmp(var_name, 'filename ')
+    elseif strcmp(var_name, 'filename')
         % Filename format
         vouts{1}=var;
         
-    elseif strcmp(var_name, 'fileformat ')
+    elseif strcmp(var_name, 'fileformat')
         % Fileformat
         vouts{2}=var;
         
-    elseif strcmp(var_name, 'pz_file ')
+    elseif strcmp(var_name, 'pz_file')
         % Pole zero file filename format
         vouts{3}=var;
         
-    elseif strcmp(var_name, 'dateformat ')
+    elseif strcmp(var_name, 'dateformat')
         % Format of the date in the filename
         vouts{4}=var;
         
-    elseif strcmp(var_name, 'decimate ')
+    elseif strcmp(var_name, 'decimate')
         % How much to downsample 
         vouts{5}=str2num(var);  
             
-    elseif strcmp(var_name, 'missingfiles ')
+    elseif strcmp(var_name, 'missingfiles')
         % Number of missing files in a row tolerated
         vouts{6}=str2num(var);  
         
-    elseif strcmp(var_name, 'bpf ')
+    elseif strcmp(var_name, 'bpf')
         % Bandpass filter to apply during pre processing 
         vouts{7}=str2num(var); 
 
-    elseif strcmp(var_name, 'norm ')
+    elseif strcmp(var_name, 'norm')
         % Normalization during pre processing
         vouts{8}=split(var);
         
-    elseif strcmp(var_name, 'wl ')
+    elseif strcmp(var_name, 'wl')
         % Window length for cross correlation
         vouts{9}=str2num(var);
             
-    elseif strcmp(var_name, 'swl ')
+    elseif strcmp(var_name, 'swl')
         % Stacking widow length
         vouts{10}=str2num(var);
         
-    elseif strcmp(var_name, 'perco ')
+    elseif strcmp(var_name, 'perco')
         % Stacking widow length
         vouts{11}=str2num(var);
 
-    elseif strcmp(var_name, 'datesm ')
+    elseif strcmp(var_name, 'datesm')
         % Bandpass filter to apply before measuring time errors
         datesm=split(var);
         
-    elseif strcmp(var_name, 'bpfm ')
+    elseif strcmp(var_name, 'bpfm')
         % Bandpass filter to apply before measuring time errors
         bpfm=str2num(var); 
 
-    elseif strcmp(var_name, 'iterations ')
+    elseif strcmp(var_name, 'iterations')
         % Number of iterations to run the measuring process
         iterations=str2num(var); 
         
-    elseif strcmp(var_name, 'lag_red ')
+    elseif strcmp(var_name, 'lag_red')
         % Time lag to use for measuring time errors and plotting 
         lag_red=str2num(var); 
         
-    elseif strcmp(var_name, 'stackperiod ')
+    elseif strcmp(var_name, 'stackperiod')
         % Time period to stack over for to use for reference trace during
         % timing error measuring 
         stackperiod=split(var);   
             
-    elseif strcmp(var_name, 'signalpart ')
+    elseif strcmp(var_name, 'signalpart')
         % Time period to stack over for to use for reference trace during
         % timing error measuring 
         signal_part = var; 
         
-    elseif strcmp(var_name, 'threshold ')
+    elseif strcmp(var_name, 'threshold')
         % Time period to stack over for to use for reference trace during
         % timing error measuring 
         thr = str2num(var); 
         
-    elseif strcmp(var_name, 'fit ')
+    elseif strcmp(var_name, 'fit')
         % Station with reliable clock for the invertion 
         fit = var;  
 
-    elseif strcmp(var_name, 'fitperiod ')
+    elseif strcmp(var_name, 'fitperiod')
         % Station with reliable clock for the invertion 
         fitperiod = split(var);  
             
-    elseif strcmp(var_name, 'reference_clock_station ')
+    elseif strcmp(var_name, 'reference_clock_station')
         % Station with reliable clock for the invertion 
         RCS = var;   
 
-    elseif strcmp(var_name, 'xaxis ')
+    elseif strcmp(var_name, 'xaxis')
         % X-axis for the EGF
         xaxis=str2num(var); 
 
-    elseif strcmp(var_name, 'yaxis ')
+    elseif strcmp(var_name, 'yaxis')
         % Y-axsis for the measured time shift
         yaxis=str2num(var); 
         
-    elseif strcmp(var_name, 'titl ')
+    elseif strcmp(var_name, 'titl')
         % PLot title
         titl=var;
         
-    elseif strcmp(var_name, 'bpfp ')
+    elseif strcmp(var_name, 'bpfp')
         % Bandpass filter before plot
         bpfp=str2num(var);
         
-    elseif strcmp(var_name, 'cutoff_freq1 ')
+    elseif strcmp(var_name, 'cutoff_freq1')
         % Bandpass filter before plot
         fc1 = str2num(var);
         
-    elseif strcmp(var_name, 'cutoff_freq2 ')
+    elseif strcmp(var_name, 'cutoff_freq2')
         % Bandpass filter before plot
         fc2 = str2num(var);
             
-    elseif strcmp(var_name, 'filenameO ')
+    elseif strcmp(var_name, 'filenameO')
         % Filename format
         filenameO=var;
         
-    elseif strcmp(var_name, 'fileformatO ')
+    elseif strcmp(var_name, 'fileformatO')
         % Fileformat
         fileformatO=var;
         
-    elseif strcmp(var_name, 'dateformatO ')
+    elseif strcmp(var_name, 'dateformatO')
         % Format of the date in the filename
         dateformatO=var;
     end       
