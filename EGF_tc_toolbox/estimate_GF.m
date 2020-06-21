@@ -36,15 +36,14 @@ tspd = Fq*60*60*24; % Total samples per day
 lcc = 2*tspd/(24/wl)-1; % Length of cross correlation function
 
 % Design the filter using the given cutoff frquencies and designfilt
-filter_type = filter(1);
-if strcmp(filter_type, 'bp')
-    passband1 = num2str(filter(2));
-    passband2 = num2str(filter(3));
+if length(filter) == 2
+    passband1 = filter(1);
+    passband2 = filter(2);
     df1 = designfilt('bandpassiir', 'FilterOrder', 4, ...
         'HalfPowerFrequency1', passband1, 'HalfPowerFrequency2', ...
         passband2, 'SampleRate', Fq, 'DesignMethod', 'butter');
-elseif strcmp(filter_type, 'lp')
-    passband = num2str(filter(2));
+else
+    passband = filter(1);
     df1 = designfilt('lowpassiir','FilterOrder',4, ...
          'PassbandFrequency',passband,'PassbandRipple',0.2, ...
          'SampleRate',Fq, 'DesignMethod', 'butter');
