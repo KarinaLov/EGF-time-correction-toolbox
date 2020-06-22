@@ -13,7 +13,7 @@ function [fdelay fdelayc] = invert_TD(settingsfile,varargin)
 %
 % Sub-function: read_settings.m
 %
-% Written by Karina Løviknes
+% Written by Karina Loviknes
 %
 
 % Default values from settings file
@@ -34,11 +34,10 @@ end
 
 nsp = nost*num_stat_cc/2; % Number of station pair 
 
-sp = 0; % Count the stationpairs
-G = zeros(nsp,nost); % Matrix for inversion:
-
 for ch=1:nch
     channel = channels(ch);
+    sp = 0; % Count the stationpairs
+    G = zeros(nsp,nost); % Matrix for inversion:
 for jj = 1:nost
     % Loop over all the station pairs
     stationA = char(stations(jj));    
@@ -56,7 +55,7 @@ for kk = 1:num_stat_cc-(jj-1)
     
     % Extract measured time delays from file
     filename = ['TD_' pair '_' dates2 '.mat'] 
-    if exist(filename,'file') % Check that the file exists
+    if java.io.File(filename).exists  % Check that the file exists 
         file = load(filename);
         timedelay(sp,:) = file.timedelay.timedelay;
         timedelay0(sp,:) = file.timedelay.timedelay0;
@@ -67,41 +66,12 @@ for kk = 1:num_stat_cc-(jj-1)
         error(['Cannot find a mat.file with an estimated greens function for stationpair ' pair '. Fileformat must be: TD_' pair '_' dates2 '.mat' ])
     end
     dd1 = linspace(1,num_days,num_corr); % The days to be plotted
-    
+     
     if strcmp(fit,'linfit')
-    % Define the linear fit:
-        if isempty(fitperiod)
-            dd_fit = polyfit(dd1,timedelay,1);
-            dd_fit_eval = polyval(dd_fit,dd1);
-
-        elseif length(fitperiod)==3 && trcmp(statf,'all')
-            dd_fit = polyfit(dd1(dfp1:dfp2),timedelay(dfp1:dfp2),1);
-            dd_fit_eval = polyval(dd_fit,dd1);
-
-        elseif length(fitperiod) >= 3        
-            llp = 0;
-            for ll = 1:lfp/3
-                statf = fitperiod{1+llp};
-                dfp1 = str2num(fitperiod{2+llp});
-                dfp2 = str2num(fitperiod{3+llp});
-
-                % Fit the line:
-                if strcmp(stationA,statf) || strcmp(stationB,statf)
-                    dd_fit = polyfit(dd1(dfp1:dfp2),timedelay(dfp1:dfp2),1);
-                    dd_fit_eval = polyval(dd_fit,dd1);
-                elseif trcmp(statf,'all')
-                    dd_fit = polyfit(dd1(dfp1:dfp2),timedelay(dfp1:dfp2),1);
-                    dd_fit_eval = polyval(dd_fit,dd1);
-                else
-                    dd_fit = polyfit(dd1,timedelay,1);
-                    dd_fit_eval = polyval(dd_fit,dd1);
-                end
-                llp =llp+3;
-            end
-        end
-        timeshift = dd_fit_eval;
+    % Use the linear fit:
+        timeshift(sp,:) = linear_td(sp,:);
     else
-        timeshift = timedelay;
+        timeshift(sp,:) = timedelay(sp,:);
     end
 end
 end
@@ -142,9 +112,9 @@ if strcmp(varargin,'plot')
         std1 = std(fdelayc(ff,:))/Fq;
         
         subplot(nost,1,ff)
-        plot(dd1,fdelayc/Fq)
+        plot(dd1,fdelayc(ff,:)/Fq)
         axis([0 num_corr yaxis])
-        title(['Corrected timedelay for ' char(stations(ff)) '-' channel])
+        title(['Inverted timedelay for ' char(stations(ff)) '-' channel])
         xlabel('days')
         hold on 
         

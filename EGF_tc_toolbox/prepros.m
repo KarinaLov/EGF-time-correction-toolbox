@@ -18,7 +18,7 @@ function prosd = prepros(data,Fq,df,resp,channel,varargin)
 %
 % Sub-function: costap_filter.m, rm_resp.m, spectral_whitening.m
 %
-% Written by Karina LÃ¸viknes
+% Written by Karina Løviknes
 %
 
 L = length(data);
@@ -29,17 +29,12 @@ dtrnd = detrend(data);
 % Taper
 tap = costap_filter(dtrnd,0.05);
 
-if strcmp(channel,'H')
-    % Don't remove instrument response, only bandpass filter
-    filt2 = filtfilt(df,tap);
-else
-    % Bandpass
-    filt1 = filtfilt(df,tap);
-    % Remove instrument response 
-    trans = rm_iresp(filt1,L,resp);
-    % Bandpass again to avoid low frequency artifacts caused by 
-    filt2 = filtfilt(df,trans);
-end
+% Bandpass
+filt1 = filtfilt(df,tap);
+% Remove instrument response 
+trans = rm_iresp(filt1,L,resp);
+% Bandpass again to avoid low frequency artifacts caused by 
+filt2 = filtfilt(df,trans);
 
 if isempty(varargin)
     % Default: Onebit normalization before spectral whitening

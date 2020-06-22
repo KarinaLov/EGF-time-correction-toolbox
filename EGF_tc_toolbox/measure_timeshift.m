@@ -106,9 +106,9 @@ for ch = 1:nch
             dd1 = linspace(1,num_days,num_corr); % The days to be plotted
 
             % Determine signal and noise area for calculating SNR:
-            narrp = zero_lag+400:zero_lag+500;
-            narrn = zero_lag-400:zero_lag-500;
-            sarr = zero_lag-350:zero_lag+350;
+            narrp = zero_lag+(lag_red-lag_red/5):zero_lag+lag_red;
+            narrn = zero_lag-(lag_red-lag_red/5):zero_lag-lag_red;
+            sarr = zero_lag-(lag_red/5):zero_lag+(lag_red/5);
 
             dayshift = egf;
 
@@ -147,7 +147,7 @@ for ch = 1:nch
 
                     % Find the static timing error (the unsymmetry of the
                     % reference):
-                    delay_stat(it) = 0; %cl(find(abs(reff)==max(abs(reff))))
+                    delay_stat(it) = cl(find(abs(reff)==max(abs(reff))));
                     % Measure over the entire waveform
                     refwhn = reff/max(abs(reff)); 
 
@@ -208,10 +208,8 @@ for ch = 1:nch
                                 strcmp(signal_part, 'all'))
                             % Find the time shift of each side of the
                             % signal:
-                            delay_neg(k) = lag_neg(find(td_neg==max(...
-                                td_neg)));
-                            delay_pos(k) = lag_pos(find(td_pos==max(...
-                                td_pos)));
+                            delay_neg(k) = lag_neg(find(td_neg==max(td_neg)));
+                            delay_pos(k) = lag_pos(find(td_pos==max(td_pos)));
 
                             % Check that the delay is of the same size at
                             % both sides of the signal, but with opposite 
@@ -219,8 +217,7 @@ for ch = 1:nch
                             if (-(delay_neg(k)+2))<=delay_pos(k) &&...
                                     delay_pos(k)<=(-(delay_neg(k)-2))
                                 % Calculate the average delay:
-                                delay_dyn0(k) = (delay_pos(k)-...
-                                    delay_neg(k))/2;
+                                delay_dyn0(k) = (delay_pos(k)-delay_neg(k))/2;
                                 delay_dyn(k) = 0;
 
                                 type=[type 's'];
@@ -241,37 +238,33 @@ for ch = 1:nch
                                 type = [type '0'];
 
                             end
-                        elseif maxtwh>thr &&...
-                                (strcmp(signal_part, 'whole') ||...
+                        elseif maxtwh>thr &&(strcmp(signal_part, 'whole') ||...
                                 strcmp(signal_part, 'all'))
                             % Measure the delay over the entire waveform       
-                            delay_dyn0(k) = lag_wh(find(td_whn==...
-                                max(td_whn)));
+                            delay_dyn0(k) = lag_wh(find(td_whn==max(td_whn)));
                             delay_dyn(k) = delay_dyn0(k);
 
                             type = [type 'w'];
 
-                        elseif maxtdp>0.4 && maxtdn<0.4 &&...
+                        elseif maxtdp>thr && maxtdn<thr &&...
                                 (strcmp(signal_part, 'positive') ||...
                                 strcmp(signal_part, 'all'))
                             % The positive amplitudes are higher than the 
                             % negative, only use the positive side of the 
                             % signal:
-                            delay_pos(k) = lag_pos(find(...
-                                td_pos==max(td_pos)));
+                            delay_pos(k) = lag_pos(find(td_pos==max(td_pos)));
                             delay_dyn0(k) = delay_pos(k);    
                             delay_dyn(k) = delay_dyn0(k);
 
                             type = [type 'p'];
 
-                        elseif maxtdn>0.4 && maxtdp<0.4 &&...
+                        elseif maxtdn>thr && maxtdp<thr &&...
                                 (strcmp(signal_part, 'negative') ||...
                                 strcmp(signal_part, 'all'))
                             % The negative amplitudes are higher than the 
                             % positive, only use the negative side of the 
                             % signal:
-                            delay_neg(k) = lag_neg(find(...
-                                td_neg==max(td_neg)));
+                            delay_neg(k) = lag_neg(find(td_neg==max(td_neg)));
                             delay_dyn0(k) = -delay_neg(k);
                             delay_dyn(k) = delay_dyn0(k);
 
@@ -301,9 +294,41 @@ for ch = 1:nch
                     end
                 end
 
-                % Fit the line:
-                dd_fit = polyfit(dd1,delay_dyn,1);
-                dd_fit_eval = polyval(dd_fit,dd1);
+                if strcmp(fit,'linfit')
+                % Define the linear fit:
+                    if isempty(fitperiod)
+                        dd_fit = polyfit(dd1,delay_dyn,1);
+                        dd_fit_eval = polyval(dd_fit,dd1);
+
+                    elseif length(fitperiod)==3 && trcmp(statf,'all')
+                        dd_fit = polyfit(dd1(dfp1:dfp2),delay_dyn(dfp1:dfp2),1);
+                        dd_fit_eval = polyval(dd_fit,dd1);
+
+                    elseif length(fitperiod) >= 3        
+                        llp = 0;
+                        for ll = 1:length(fitperiod)/3
+                            statf = fitperiod{1+llp};
+                            dfp1 = str2num(fitperiod{2+llp});
+                            dfp2 = str2num(fitperiod{3+llp});
+
+                            % Fit the line:
+                            if strcmp(stationA,statf) || strcmp(stationB,statf)
+                                dd_fit = polyfit(dd1(dfp1:dfp2),delay_dyn(dfp1:dfp2),1);
+                                dd_fit_eval = polyval(dd_fit,dd1);
+                            elseif strcmp(statf,'all')
+                                dd_fit = polyfit(dd1(dfp1:dfp2),delay_dyn(dfp1:dfp2),1);
+                                dd_fit_eval = polyval(dd_fit,dd1);
+                            else
+                                dd_fit = polyfit(dd1,delay_dyn,1);
+                                dd_fit_eval = polyval(dd_fit,dd1);
+                            end
+                            llp =llp+3;
+                        end
+                    end
+                    timeshift = dd_fit_eval;
+                else
+                    timeshift = delay_dyn;
+                end
 
                 for kk = 1:k
                     % Correct for found timing errors:

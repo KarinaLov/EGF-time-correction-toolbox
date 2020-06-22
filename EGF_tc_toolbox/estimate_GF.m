@@ -110,19 +110,31 @@ for ch = 1:nch
                 SBprosd = prepros(SBdata(d,:),Fq,df1,respB,channel,norm);
 
                 % Cross correlations:
-                [EGF1 lag] = cross_conv(SAprosd,SBprosd,Fq,wl,swl,perco);
-                k=d*nk;
-
-                EGF(k-(nk-1):k,:)=EGF1;
+                if swl == 24
+                    [EGF1 lag] = cross_conv(SAprosd,SBprosd,Fq,wl,swl,perco);
+                    EGF(d,:) = EGF1;
+                elseif swl < 24
+                    [EGF1 lag] = cross_conv(SAprosd,SBprosd,Fq,wl,swl,perco);
+                    k=d*nk;
+                    EGF(k-(nk-1):k,:) = EGF1;
+                else
+                    [EGF1 lag] = cross_conv(SAprosd,SBprosd,Fq,wl,24,perco); 
+                    EGF2(d,:) = EGF1;
+                end
 
                 % Save the daily cross correlations as SAC-files:
-                % Header=struct('DELTA',1/Fq,'B',lag(1)/Fq,'E',...
-                % lag(end)/Fq,'KSTNM', pair,'KHOLE',00,'KCMPNM',...
-                % channels,'KNETWK',network,'NZDTTM',...
-                % datevec(datevector(1)));
-                % mksac(['Egf_' pair '_' datevector(d) '.SAC'],stack,...
-                % datenum(first_day),Header)
+                %Header=struct('DELTA',1/Fq,'B',lag(1)/Fq,'E',lag(end)/Fq,...
+                %'KSTNM',pair,'KHOLE',00,'KCMPNM',channels,'KNETWK',network,...
+                %'NZDTTM',datevec(datevector(1)));
+                %mksac(['Egf_' pair '_' datevector(d) '.SAC'],stack,datenum(first_day),Header)
 
+            end
+            if swl > 24
+               for ss = 1:num_corr 
+                   s2 = ss*(swl/24);
+                   s1 = s2-(swl/24)+1;
+                   EGF(ss,:) = sum(EGF2(s1:s2,:));
+               end
             end
             stack = sum(EGF);
 
