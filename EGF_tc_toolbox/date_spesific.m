@@ -47,14 +47,14 @@ for jj=1:nost
     filename1=['FTD_' stationN '_' dates1 '.mat']; 
     filename2=['FTD_' stationN '_' dates2 '.mat']; 
     if exist(filename1,'file') % Check that the file exists
-        filename1
+        filename1;
         file2 = load(filename1);
         timedelay = file2.timedelayF.timedelay; % Relative timedelay
         timedelayC = file2.timedelayF.timedelayC; % Correcetd timedelay
         datevector = [fd:ld];
 
     elseif exist(filename2,'file') % Check that the file exists
-        filename2
+        filename2;
         file = load(filename2);
         timedelay = file.timedelayF.timedelay;
         timedelayC = file.timedelayF.timedelayC;
@@ -69,14 +69,14 @@ for jj=1:nost
     dd1 = linspace(1,num_days,num_corr); % The days to be plotted
 
     dayd = datetime(dato);
-    dayn = find(datevector==dayd)
+    dayn = find(datevector==dayd);
     
     if isempty(dayn)
         error(['No time shift is measured for ' dayn])
     end
     
-    tdd(jj) = timedelay(dayn);
-    tddc(jj) = timedelayC(dayn);
+    tdd(jj) = timedelay(dayn)/Fq;
+    tddc(jj) = timedelayC(dayn)/Fq;
     
     disp(['Timedelay for ' stationN ' on ' dato ' is ' num2str(tddc(jj)) ' s']);
 
