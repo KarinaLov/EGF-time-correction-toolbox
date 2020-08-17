@@ -43,7 +43,7 @@ missingfiles = 5
 
 % Filter to be applied during preprocessing, specify the frequencies whether it is highpass or
 % bandpass (mandatory value):
-filter = bp [1 48]
+filter = [0.01 1.25]
 
 % Normalization specification, the options are 'onebit sw'  for onebit before spectral whitening (default), 
 % 'onebit' for only onebit normalization and 
@@ -67,7 +67,7 @@ perco = 50
 
 % Bandpass filter to apply on the daily noise correlations and reference trace 
 %before measuring time delays, if not specified no filter will be applied
-%filterm = bp [5 15]
+%filterm = 
 
 % Number of iterations to run the measuring process, must be an integer, 
 % default is 3
@@ -95,8 +95,6 @@ signalpart = whole
 % increase by 0.2 during the second iteration):
 threshold = 0.4
 
-%% INVERT:
-% Specify values for inversion:
 % Specify whether the inversion should be perfomed on the directly measured 
 % time shifts ('direct') or the linearly fitted time shift ('linfit'):
 %fit = linfit
@@ -106,6 +104,8 @@ threshold = 0.4
 % 'all' for all stations), the first day of the time period and the last (degault is the entire period):
 %fitperiod = NBB15 1 15 NBB14 5 15
 
+%% INVERT:
+% Specify values for inversion:
 % Station with reliable clock to use as reference during the invertion
 reference_clock_station = N2ST
 

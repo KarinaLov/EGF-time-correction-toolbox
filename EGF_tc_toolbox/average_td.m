@@ -1,9 +1,8 @@
 function timedelayF = average_td(settingsfile,pair)         
 % Derives the final time delay by averaging the measured relative
-% timedelays. This is an alternative to inversion when there are no
-% appropiate refernce station. The relative time delays should be
-% measured from cross correlation between assumed errousnes stations and
-% correcetd stations. 
+% timedelays. This is an alternative to inversion when the strat time is
+% unknown. The relative time delays should be measured from cross 
+% correlation between assumed errousnes stations and correcetd stations. 
 %
 % Input:
 %       settingsfile = text file where the input values are defined

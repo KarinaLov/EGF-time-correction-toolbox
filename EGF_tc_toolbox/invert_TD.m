@@ -18,7 +18,7 @@ function [fdelay fdelayc] = invert_TD(settingsfile,varargin)
 
 % Default values from settings file
 [network,stations,first_day,last_day,channels,location,num_stat_cc,Fq,...
-    fit,fitperiod,RCS,yaxis,datesm] = read_settings(settingsfile,'INVERT');
+    fit,RCS,yaxis,datesm] = read_settings(settingsfile,'INVERT');
 
 validateattributes(stations,{'cell'},{'nonempty'});
 nost=length(stations);

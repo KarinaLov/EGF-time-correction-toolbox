@@ -23,7 +23,7 @@ h = apply_filterband(settingsfile,'daily');
 
 % Give the drift on a specified date:
 dato = {'2017-07-01'}
-[tdd tddc dayn]= date_spesific('settingsfile.txt',char(dato));
+[tdd tddc dayn]= date_select('settingsfile.txt',char(dato));
 
 % Corrcet for measured time shift:
 corrected_stat = correct_td(settingsfile);

@@ -254,11 +254,10 @@ elseif strcmp(varargin{1},'TD')
 elseif strcmp(varargin{1},'INVERT')
     % Read the variables used to invert
     varargout{1}=fit;
-    varargout{2}=fitperiod;
-    varargout{3}=RCS;
-    varargout{4}=yaxis;
-    varargout{5}=datesm;
-    varargout{6}=titl;
+    varargout{2}=RCS;
+    varargout{3}=yaxis;
+    varargout{4}=datesm;
+    varargout{5}=titl;
     
 elseif strcmp(varargin{1},'PLOT')
     % Read the variables used to plot
