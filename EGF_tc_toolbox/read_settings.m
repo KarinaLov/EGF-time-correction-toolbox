@@ -38,7 +38,7 @@ vouts{9} = 24; % cross correlation window length
 vouts{10} = 24; % cross correlation stacking length
 vouts{11} = 100; % overlapping percent cross correlation
 datesm = {};
-bpfm = {};
+filterm = {};
 iterations = 3;
 lag_red = 5000;
 stackperiod = split('whole 0');
@@ -49,7 +49,7 @@ RCS = {};
 xaxis = [-150 150];
 yaxis = [-100 100];
 titl = 'name';
-bpfp = {};
+filterp = {};
 fc1 = {};
 fc2 = {};
 
@@ -61,12 +61,12 @@ nc=szt(1); % Number of columms
 
 vo=1; % Count the number of varargout variables
  for j=1:nc
-    var_name=char(txt{j,1})
-    var=char(txt{j,2})
+    var_name=char(txt{j,1});
+    var=char(txt{j,2});
     
     % Extract the variables:
     if strcmp(var_name, 'network')
-        network=var
+        network=var;
     
     elseif strcmp(var_name, 'stations')
         stations=split(var);
@@ -115,7 +115,7 @@ vo=1; % Count the number of varargout variables
         % Number of missing files in a row tolerated
         vouts{6}=str2num(var);  
         
-    elseif strcmp(var_name, 'bpf')
+    elseif strcmp(var_name, 'filter')
         % Bandpass filter to apply during pre processing 
         vouts{7}=str2num(var); 
 
@@ -139,9 +139,9 @@ vo=1; % Count the number of varargout variables
         % Bandpass filter to apply before measuring time errors
         datesm=split(var);
         
-    elseif strcmp(var_name, 'bpfm')
+    elseif strcmp(var_name, 'filterm')
         % Bandpass filter to apply before measuring time errors
-        bpfm=str2num(var); 
+        filterm=str2num(var); 
 
     elseif strcmp(var_name, 'iterations')
         % Number of iterations to run the measuring process
@@ -190,9 +190,9 @@ vo=1; % Count the number of varargout variables
         % PLot title
         titl=var;
         
-    elseif strcmp(var_name, 'bpfp')
+    elseif strcmp(var_name, 'filterp')
         % Bandpass filter before plot
-        bpfp=str2num(var);
+        filterp=str2num(var);
         
     elseif strcmp(var_name, 'cutoff_freq1')
         % Bandpass filter before plot
@@ -221,7 +221,7 @@ if isempty(varargin)
     % Read the entire file
     varargout=vouts;
     varargout{vo+1}=datesm;
-    varargout{vo+2}=bpfm;
+    varargout{vo+2}=filterm;
     varargout{vo+3}=iterations;
     varargout{vo+4}=stackperiod;
     varargout{vo+5}=fit;
@@ -230,7 +230,7 @@ if isempty(varargin)
     varargout{vo+8}=xaxis;
     varargout{vo+9}=yaxis;
     varargout{vo+10}=titl;
-    varargout{vo+11}=bpfp;
+    varargout{vo+11}=filterp;
     varargout{vo+12}=lag_red;
     varargout{vo+13}=fc1;
     varargout{vo+14}=fc2;
@@ -242,7 +242,7 @@ elseif strcmp(varargin{1},'EGF')
 elseif strcmp(varargin{1},'TD')
     % Read the variables used to measure timeshifts
     varargout{1}=datesm;
-    varargout{2}=bpfm;
+    varargout{2}=filterm;
     varargout{3}=iterations;
     varargout{4}=lag_red;
     varargout{5}=stackperiod;
@@ -264,7 +264,7 @@ elseif strcmp(varargin{1},'PLOT')
     varargout{1}=xaxis;
     varargout{2}=yaxis;
     varargout{3}=titl;
-    varargout{4}=bpfp;
+    varargout{4}=filterp;
     varargout{5}=lag_red;
     varargout{6}=datesm;
     
@@ -283,7 +283,7 @@ elseif strcmp(varargin{1},'DISTANCE')
     varargout{2}=vouts{3}; % pole zero file
     varargout{3}=vouts{3}; % Dateformat
     varargout{4}=lag_red;   
-    varargout{5}=bpfp;  
+    varargout{5}=filterp;  
     varargout{6}=datesm;
     
 elseif strcmp(varargin{1},'CORRECT')

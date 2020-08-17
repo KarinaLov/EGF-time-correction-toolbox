@@ -33,7 +33,7 @@ dateformat = yyyy.ddd
 % the Green's function
 % Pole-zero file format, if not specified the default format is 
 % [SAC_PZs_NS_stationname_HHchannels.pz]
-pz_file = stationname/SAC_PZs_NS_stationname_HHchannels.pz
+pz_file = ../stationname/SAC_PZs_NS_stationname_HHchannels.pz
 
 % Decimate factor, if no downsampling is needed leave out or blank
 % decimate = 
@@ -67,7 +67,7 @@ perco = 50
 
 % Bandpass filter to apply on the daily noise correlations and reference trace 
 %before measuring time delays, if not specified no filter will be applied
-%filterm = 
+%filterm = [0.01 1.25]
 
 % Number of iterations to run the measuring process, must be an integer, 
 % default is 3
@@ -118,7 +118,7 @@ yaxis = -4 4
 titl = alphabet
 
 % Filter
-%filterp = bp [10 25]
+%filterp = [10 25]
 
 %% FILTER
 % Specify values for applying different bandpass filters:
@@ -129,7 +129,7 @@ cutoff_freq2 = [1.25 1 0.5 0.2 0.1]
 % The filename format of the corrected output, must include station name, date and folder 
 % (if in another folder), if not specified default is 
 % [network.stationname.location.HHchannels.D.yyyy.ddd.SAC]
-filenameO = stationname/network.stationname.00.HHchannels.D.yyyy.ddd.000000.SAC
+filenameO = ../stationname/network.stationname.00.HHchannels.D.yyyy.ddd.000000.SAC
 
 % Input file format, can be either sac (default) or miniseed
 fileformatO = sac
