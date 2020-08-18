@@ -144,12 +144,13 @@ for ch = 1:nch
                     % Normalize
                     r_neg = r_neg1/max(abs(r_neg1));
                     r_pos = r_pos1/max(abs(r_pos1));
-
-                    % Find the static timing error (the unsymmetry of the
-                    % reference):
-                    delay_stat(it) = cl(find(abs(reff)==max(abs(reff))));
-                    % Measure over the entire waveform
                     refwhn = reff/max(abs(reff)); 
+                    
+                    % Find the static timing error (the unsymmetry of the
+                    % reference): NOT READY!
+                    [td_ref,lag_ref] = cross_conv(r_pos,r_neg,Fq);
+                    delay_stat(it) = 0; %lag_ref(find(abs(td_ref)==max(abs(td_ref))))
+                    % delay_stat(it) = cl(find(abs(reff)==max(abs(reff))));
 
                     % Loop over the daily cross correlations
                     for d=1:num_corr
@@ -172,7 +173,6 @@ for ch = 1:nch
                         % Normalize
                         s_neg = s_neg1/max(abs(s_neg1));
                         s_pos = s_pos1/max(abs(s_pos1));
-                        % Measure over the entire waveform
                         crconvfn = egff(k,:)/max(abs(egff(k,:)));  
 
                         % Calculate timing difference:
@@ -218,13 +218,13 @@ for ch = 1:nch
                                     delay_pos(k)<=(-(delay_neg(k)-2))
                                 % Calculate the average delay:
                                 delay_dyn0(k) = (delay_pos(k)-delay_neg(k))/2;
-                                delay_dyn(k) = 0;
+                                delay_dyn(k) = (delay_pos(k)-delay_neg(k))/2;
 
                                 type=[type 's'];
                             else
                                 % If not the delay is set to zero or the 
                                 %delay of the previous day:
-                                delay_dyn0(k) = NaN;                   
+                                delay_dyn0(k) = NaN;  
                                 if k>1
                                     % The delay can not measured, and is 
                                     % therefore set as the same as the 
@@ -233,7 +233,7 @@ for ch = 1:nch
                                 else
                                     % If it is the first day the delay is 
                                     % set to zero
-                                    delay_dyn(k) = NaN;
+                                    delay_dyn(k) = 0;
                                 end                   
                                 type = [type '0'];
 
@@ -327,12 +327,15 @@ for ch = 1:nch
                     end
                     timeshift = dd_fit_eval;
                 else
+                    dd_fit = polyfit(dd1,delay_dyn,1);
+                    dd_fit_eval = polyval(dd_fit,dd1);
+                    
                     timeshift = delay_dyn;
                 end
 
                 for kk = 1:k
                     % Correct for found timing errors:
-                    t01 = -dd_fit_eval(kk)/Fq;
+                    t01 = -timeshift(kk)/Fq;
                     omgc = exp([0:Lc-1]*Fq/Lc*-1i*2*pi*t01);
                     shift1 = fft(egf(kk,:)).*omgc;
                     shift2 = ifft(shift1,'symmetric');

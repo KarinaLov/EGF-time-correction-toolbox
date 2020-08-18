@@ -18,7 +18,7 @@ Fq = 10
 
 % The filename format, must include station name, date and folder (if in 
 % another folder), if not specified default is [network.stationname.location.HHchannels.D.yyyy.ddd.SAC]
-filename = stationname/network.stationname.location.HH.D.(DATE).mseed
+filename = ../stationname/network.stationname.location.HH.D.(DATE).mseed
 
 % Input file format, can be either sac (default) or miniseed
 %fileformat = sac
@@ -26,7 +26,7 @@ fileformat = miniseed
 
 % The date format used in the filename, default is 'yyyy-mm-dd'
 % dateformat = yyyy.mm.dd
-dateformat = yyyy.ddd
+dateformat = yyyymmdd
 
 %% EGF:
 % Specify the values specifically for loading the files and for estimating 
@@ -59,7 +59,7 @@ wl = 1
 swl = 24
 
 % Cross correlation overlap window length in %, the default is 100%
-perco = 50
+%perco = 50
 
 %% TD:
 % Specify the values for measuring time shifts
@@ -67,7 +67,7 @@ perco = 50
 
 % Bandpass filter to apply on the daily noise correlations and reference trace 
 %before measuring time delays, if not specified no filter will be applied
-%filterm = [0.01 1.25]
+filterm = [0.1429 0.5]
 
 % Number of iterations to run the measuring process, must be an integer, 
 % default is 3
@@ -75,7 +75,7 @@ iterations = 3
 
 % Only use +-lag_red time lag to reduce computational effect, default is 
 % 2000 (in samples)
-lag_red = 500
+lag_red = 2000
 
 % Specification about the time period the reference is stacked over. The 
 % options are the whole period (default), months (the first and last day of
@@ -83,7 +83,7 @@ lag_red = 500
 % (number of days must be specified), and increase (for using the signal of
 % the first day as reference in the first iteration and then a specified 
 % numdays for the next iteration):
-stackperiod = increasing 1 3
+stackperiod = firstdays 30
 
 % Specification about which part of the signal should be used to measure 
 % the timeshift, the options are all (default), separated, whole, positive 
@@ -111,14 +111,14 @@ reference_clock_station = N2ST
 
 %% PLOT:
 % Specify the values for plotting:
-xaxis = -4 4
-yaxis = -4 4
+xaxis = -150 150
+yaxis = -150 150
 
 % Specify wheter the title should be the name of the plot ('name',default) or a letter (alphabet):
-titl = alphabet
+%titl = alphabet
 
 % Filter
-%filterp = [10 25]
+%filterp = [0.1429 0.5]
 
 %% FILTER
 % Specify values for applying different bandpass filters:

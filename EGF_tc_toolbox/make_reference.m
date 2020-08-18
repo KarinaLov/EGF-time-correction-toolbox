@@ -16,7 +16,7 @@ function [ref,numref] = make_reference(daily,varargin)
 %       ref = the reference trace
 %       numref = the number of reference traces 
 %
-% Written by Karina Løviknes
+% Written by Karina Loviknes
 %
 
 number_of_days = length(daily(:,1)); % Number of days

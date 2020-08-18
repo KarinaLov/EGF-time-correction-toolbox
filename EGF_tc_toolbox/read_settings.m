@@ -267,6 +267,7 @@ elseif strcmp(varargin{1},'PLOT')
     varargout{4}=filterp;
     varargout{5}=lag_red;
     varargout{6}=datesm;
+    varargout{7}=fit;
     
 elseif strcmp(varargin{1},'FILTER')
     % Read the variables used to filter
