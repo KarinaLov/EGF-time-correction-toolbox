@@ -388,6 +388,6 @@ elseif nargout==2
 end
 % Write the daily data-information into a textfile:
 writetable(daily,[stationname '_' datestr(datevector(1)) '-' datestr(...
-    datevector(end)) '.txt']);
+    datevector(end)) '_wlog.txt']);
 end
 

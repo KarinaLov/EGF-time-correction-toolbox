@@ -18,7 +18,7 @@ function h = apply_filterband(settingsfile,specification)
 %
 % Sub-function: read_settings.m
 %
-% Written by Karina L??viknes 
+% Written by Karina Loviknes 
 %
 
 ord = 4; % Filter order, default

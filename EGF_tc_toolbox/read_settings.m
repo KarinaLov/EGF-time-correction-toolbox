@@ -61,7 +61,7 @@ nc=szt(1); % Number of columms
 
 vo=1; % Count the number of varargout variables
  for j=1:nc
-    var_name=strtrim(char(txt{j,1}))
+    var_name=strtrim(char(txt{j,1}));
     var=char(txt{j,2});
     
     % Extract the variables:

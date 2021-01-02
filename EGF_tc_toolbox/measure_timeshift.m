@@ -11,7 +11,7 @@ function delay = measure_timeshift(settingsfile)
 %
 % Sub-function: read_settings.m, make_reference.m and cross_conv.m
 %
-% Written by Karina L??viknes 
+% Written by Karina Loviknes 
 % 
 
 % Default values from settings file

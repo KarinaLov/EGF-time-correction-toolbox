@@ -1,5 +1,9 @@
-settingsfile1.txt
-settingsfile2.txt
-correct_ftd.m
-correct_td0.m
-cross_fft.m
+EGF_tc_toolbox/mksac.m
+EGF_tc_toolbox/rdsac.m
+EGF_tc_toolbox/ReadMSEEDFast.m
+Egf_*
+FTD_*
+TD_*
+*_wlog.txt
+*.asv
+*.SAC
