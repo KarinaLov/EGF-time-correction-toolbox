@@ -13,12 +13,12 @@
 %
 % Sub-function: read_settings.m
 %
-% Written by Karina L??viknes 
+% Written by Karina Loviknes 
 % 
 
 % Default values from settings file
 [network, stations, first_day, last_day, channels, location,...
-    num_stat_cc, Fq, xaxis, yaxis, titl, bpf, lag_red, datesm] =...
+    num_stat_cc, Fq, xaxis, yaxis, titl, bpf, lag_red, datesm, fit] =...
     read_settings(settingsfile, 'PLOT');
 
 validateattributes(stations,{'cell'},{'nonempty'});
@@ -106,13 +106,14 @@ for jj=1:nost-1
                 file2 = load(filename2);
                 timedelay = file2.timedelay.timedelay;
                 timedelay0 = file2.timedelay.timedelay0;
-                linear_td = file2.timedelay.linear_td;
+                linear_td0 = file2.timedelay.linear_td;
                 ref = file2.timedelay.reference;
             else
                 warning(['Cannot find a mat.file with a measured time ',...
                     'delay for stationpair ' pair '. Fileformat must ',...
                     'be: TD_' pair '_' dates2 '.mat' ])
             end
+
 
             % Reduce computional effort by only using +-lag_red time lag
             zerolag = find(lag==0);
@@ -176,8 +177,13 @@ for jj=1:nost-1
                 end
 
                 subplot(2,2,4)
-                plot(dd1,linear_td/Fq,dd1,timedelay0/Fq,'.')
-                legend('Linearly fitted timedelay','Measured timedelay')
+                if strcmp(fit,'linfit')
+                    plot(dd1,linear_td/Fq,dd1,timedelay0/Fq,'.')
+                    legend('Linearly fitted timedelay','Measured timedelay')
+                else
+                    plot(dd1,timedelay/Fq,dd1,timedelay0/Fq)
+                    legend('Continous timedelay','Measured timedelay')
+                end
                 axis([1 num_days yaxis])
                 xlabel('Days','FontSize', 16), ylabel('Time delay (s)',...
                     'FontSize', 16)
@@ -224,9 +230,14 @@ for jj=1:nost-1
                         'timedelays'],'FontSize', 15)
                 end
 
-                subplot(2,2,4)
-                plot(dd1,linear_td/Fq,dd1,timedelay0/Fq,'.')
-                legend('Linearly fitted timedelay','Measured timedelay')
+                subplot(2,2,4)            
+                if strcmp(fit,'linfit')
+                    plot(dd1,linear_td/Fq,'b',dd1,timedelay0/Fq,'r.')
+                    legend('Linearly fitted timedelay','Measured timedelay')
+                else
+                    plot(dd1,timedelay/Fq,dd1,timedelay0/Fq)
+                    legend('Continous timedelay','Measured timedelay')
+                end
                 axis([1 num_days yaxis])
                 xlabel('Days','FontSize', 16), ylabel('Time delay (s)',...
                     'FontSize', 16)
@@ -277,8 +288,13 @@ for jj=1:nost-1
                 end
 
                 subplot(2,1,2)
-                plot(dd1,linear_td/Fq,dd1,timedelay0/Fq,'.')
-                legend('Linearly fitted timedelay','Measured timedelay')
+                if strcmp(fit,'linfit')
+                    plot(dd1,linear_td/Fq,'b',dd1,timedelay0/Fq,'r.')
+                    legend('Linearly fitted timedelay','Measured timedelay')
+                else
+                    plot(dd1,timedelay/Fq,dd1,timedelay0/Fq)
+                    legend('Continous timedelay','Measured timedelay')
+                end
                 axis([1 num_days yaxis])
                 xlabel('Days','FontSize', 16), ylabel('Time delay (s)',...
                     'FontSize', 16)        
@@ -363,9 +379,13 @@ for jj=1:nost-1
                     end
 
                     subplot(2,nsp,sp+nsp)
-                    plot(dd1,linear_td/Fq,'b-',dd1,timedelay0/Fq,'r.')
-                    legend('Linearly fitted timedelay',...
-                        'Measured timedelay')
+                    if strcmp(fit,'linfit')
+                        plot(dd1,linear_td/Fq,'b',dd1,timedelay0/Fq,'r.')
+                        legend('Linearly fitted timedelay','Measured timedelay')
+                    else
+                        plot(dd1,timedelay/Fq,dd1,timedelay0/Fq)
+                        legend('Continous timedelay','Measured timedelay')
+                    end
                     axis([1 num_days yaxis])
                     xlabel('Days','FontSize', 10), ylabel(...
                         'Time delay (s)','FontSize', 10)
@@ -396,9 +416,13 @@ for jj=1:nost-1
                     end
 
                     subplot(2,nch,spp+nch)
-                    plot(dd1,linear_td/Fq,'b-',dd1,timedelay0/Fq,'r.')
-                    legend('Linearly fitted timedelay',...
-                        'Measured timedelay')
+                    if strcmp(fit,'linfit')
+                        plot(dd1,linear_td/Fq,'b',dd1,timedelay0/Fq,'r.')
+                        legend('Linearly fitted timedelay','Measured timedelay')
+                    else
+                        plot(dd1,timedelay/Fq,dd1,timedelay0/Fq)
+                        legend('Continous timedelay','Measured timedelay')
+                    end
                     axis([1 num_days yaxis])
                     xlabel('Days','FontSize', 10), ylabel(...
                         'Time delay (s)','FontSize', 10)

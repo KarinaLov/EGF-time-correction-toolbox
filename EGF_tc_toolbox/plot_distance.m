@@ -12,7 +12,7 @@ function h = plot_distance(settingsfile)
 % Sub-function: read_settings.m, str2filename.m, read_info_pz.m and
 %       calc_dist.m
 %
-% Written by Karina Løviknes 
+% Written by Karina Loviknes 
 % 
 
 % Read all the default values from the settings file
@@ -92,7 +92,7 @@ for kk=1:num_stat_cc-ii
     [longB,latB] = read_info_pz(pz_file_B,'Coordinates');
     
     % Calculate distance:
-    in_st_dist(sp) = calc_dist(latA,longA,latB,longB)*1000;
+    in_st_dist(sp) = calc_dist(latA,longA,latB,longB);
 end
 % Make sure the stations are cross correlted with the rigth number of stations: 
 if ii >= num_stat_cc
@@ -103,10 +103,9 @@ end
 end
 end
 
-maxdist = max(in_st_dist)
+maxdist = max(in_st_dist);
 btwdist = maxdist/sp;
 mindist = min(in_st_dist);
-in_st_dist
 
 h = figure;
 for ii=1:sp
